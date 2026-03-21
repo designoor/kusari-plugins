@@ -1,0 +1,17 @@
+{
+  "name": "kusari-plugins",
+  "owner": {
+    "name": "ryowa"
+  },
+  "metadata": {
+    "description": "Kusari plugin collection"
+  },
+  "plugins": [
+    {
+      "name": "kusari-dev",
+      "source": "./kusari-dev",
+      "description": "PRD-to-code pipeline: plan implementation from a PRD, then execute steps with test-first development",
+      "version": "0.1.0"
+    }
+  ]
+}

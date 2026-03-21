@@ -1,6 +1,7 @@
 ---
 description: Translate a PRD into a step-by-step implementation plan with interfaces, function signatures, test plans, and acceptance criteria
 argument-hint: <path-or-filename>
+disable-model-invocation: false
 ---
 
 You are orchestrating the translation of a PRD into an implementation plan.
@@ -46,7 +47,7 @@ Launch the `implementation-writer` agent. Pass it:
 - The original PRD
 - The structured analysis with all resolved gaps
 - The proposed step breakdown
-- Instruction: produce only the skeleton. For each step, include only the goal, interfaces (names with field names and types), and function/method signatures. No edge cases, test plans, acceptance criteria, or data flow.
+- Instruction: produce only the skeleton. Classify each step as scaffolding or code. For each step, include the goal and dependencies. For code steps, also include interfaces (names with field names and types) and function/method signatures. For scaffolding steps, also include a file list (paths only, no content). No edge cases, test plans, acceptance criteria, or data flow.
 
 The skeleton must follow this format:
 
@@ -58,8 +59,23 @@ One paragraph describing what this plan covers.
 
 ## Steps Overview
 
-### Step 1: [Step Name]
+### Step 1: [Step Name] [scaffolding]
 **Goal:** One sentence stating what this step accomplishes.
+
+**Dependencies:** None
+
+**Files:**
+- `package.json`
+- `tsconfig.json`
+- `packages/core/package.json`
+- `packages/core/tsconfig.json`
+- `packages/core/src/index.ts`
+
+### Step 2: [Step Name] [code]
+**Goal:** One sentence stating what this step accomplishes.
+
+**Dependencies:**
+- **Step 1: [Step Name]** -- project structure and build pipeline
 
 **Interfaces:**
 - `UserProfile` — id: string, email: string, displayName: string, createdAt: DateTime
@@ -70,14 +86,12 @@ One paragraph describing what this plan covers.
 - `getUserProfile(id: string): UserProfile | null` — Retrieves a user profile by ID
 - `updateUserSettings(userId: string, settings: Partial<UserSettings>): UserSettings` — Merges provided settings with existing ones
 
-### Step 2: [Step Name]
-**Goal:** ...
+### Step 3: [Step Name] [code]
+**Goal:** One sentence stating what this step accomplishes.
 
-**Interfaces:**
-...
-
-**Functions/Methods:**
-...
+**Dependencies:**
+- **Step 1: [Step Name]** -- project structure and build pipeline
+- **Step 2: [Step Name]** -- `UserProfile`, `UserSettings` from `src/models/user`; `createUserProfile` from `src/services/user`
 ```
 
 Create the output directory `<prd-name>-implementation/` next to the PRD.
@@ -89,7 +103,7 @@ For each batch of 3-4 steps, launch the `implementation-writer` agent. Pass it:
 - The original PRD
 - The structured analysis with all resolved gaps
 - The full skeleton from `index.md`
-- Instruction: produce full detail for steps N through M only, following the complete step structure (Goal, Interfaces, Functions/Methods, Data Flow if applicable, Edge Cases & Constraints, Test Plan, Acceptance Criteria).
+- Instruction: produce full detail for steps N through M only. Use the classification tag from the skeleton ([scaffolding] or [code]) to select the correct step structure. Code steps use the full code step structure (Goal, Interfaces, Functions/Methods, Data Flow if applicable, Edge Cases & Constraints, Test Plan, Acceptance Criteria). Scaffolding steps use the scaffolding step structure (Goal, Files to Write with literal content, Post-Setup Verification).
 
 Save each step as `step-NN-<step-name>.md` in the output directory.
 

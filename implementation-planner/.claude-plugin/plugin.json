@@ -1,6 +1,0 @@
-{
-  "name": "implementation-planner",
-  "version": "0.1.0",
-  "description": "Translates a product requirements document (PRD) into a detailed, step-by-step code implementation plan with interfaces, function signatures, test plans, and acceptance criteria.",
-  "author": "ryowa"
-}

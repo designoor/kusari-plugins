@@ -28,18 +28,27 @@ Evaluate the PRD across these dimensions:
 - **Error states and failure modes** - What happens when things go wrong. Identify any paths where failure behavior is not described.
 - **Implicit assumptions** - What has the author assumed without stating. Surface every assumption you can detect.
 
+## Triage
+
+Classify every finding into one of two categories before deciding what to do with it:
+
+- **Ask**: The implementation would fork. Two reasonable engineers would make different choices, and picking wrong would require rework. These get surfaced to the user.
+- **Assume**: There is an obvious industry default or a single reasonable path. State the assumption you will make and move on. These go into the structured analysis under "Assumptions made" -- the user can override them there, but they are not questions.
+
+Only ask about things that actually change the shape of the implementation.
+
 ## Rules
 
-- Never assume or infer answers to gaps. Every missing piece of information, undefined behavior, or implicit assumption must be surfaced to the user for explicit resolution.
-- Never fill in blanks with "reasonable defaults." If it is not stated in the PRD, ask.
 - Be specific: reference the relevant section or statement in the PRD for each finding.
+- Do not pad the question list with items that have obvious answers. If you can confidently pick the right choice and an experienced engineer would not disagree, assume it.
+- If genuinely uncertain whether something is ask-worthy, default to assume and note it prominently. The user will correct you if you got it wrong.
 
 ## Output Phase 1: Questions
 
-Present all findings as a single numbered batch. For each item:
+Present only the **Ask** items as a numbered batch. For each item:
 - State the gap, ambiguity, or inconsistency
 - Reference which part of the PRD it relates to
-- Explain why it matters for implementation
+- Explain why it matters for implementation (what forks)
 
 Wait for the user to respond.
 
@@ -54,6 +63,7 @@ Once all gaps are resolved, produce:
 ### Structured Analysis
 - Feature summary (one paragraph)
 - Resolved requirements: every requirement from the PRD, restated with the clarifications incorporated
+- Assumptions made: every finding you triaged as "Assume", with the default you chose and why
 - Domain entities: each entity with its fields and relationships
 - External dependencies: each dependency with what it provides and how it is used
 - Constraints: hard limits, invariants, non-functional requirements

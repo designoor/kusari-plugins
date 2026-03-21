@@ -17,9 +17,14 @@ plugin-name/
 
 ## Development workflow
 
-Install a local plugin for testing:
+Register the local marketplace (once):
 ```
-/plugin install /Users/ryowa/Repos/kusari-plugins/implementation-planner
+/plugin marketplace add /Users/ryowa/Repos/kusari-plugins
+```
+
+Install a plugin for testing:
+```
+/plugin install <plugin-name>@kusari-plugins
 /reload-plugins
 ```
 

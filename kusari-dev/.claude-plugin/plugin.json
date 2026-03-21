@@ -1,0 +1,8 @@
+{
+  "name": "kusari-dev",
+  "version": "0.1.0",
+  "description": "PRD-to-code pipeline. Plan implementation from a PRD, then execute steps with test-first development and automatic validation.",
+  "author": {
+    "name": "ryowa"
+  }
+}

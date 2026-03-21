@@ -1,0 +1,63 @@
+# kusari
+
+PRD-to-code pipeline. Plan implementation from a PRD, then execute steps with test-first development and automatic validation.
+
+## Commands
+
+### /plan
+
+```
+/plan <path-or-filename>
+```
+
+Translates a PRD into a step-by-step implementation plan. Argument is a PRD file path or filename.
+
+Two-phase process:
+
+1. **prd-analyzer** (cyan) -- Reads the PRD, identifies gaps and ambiguities, asks you to resolve them. Produces a structured analysis and proposed step breakdown.
+2. **implementation-writer** (green) -- Translates the analysis into detailed implementation steps with interfaces, function signatures, test plans, and acceptance criteria.
+
+Output for plans with 8 or fewer steps: a single `<prd-name>-implementation.md` file. For more than 8 steps: a directory with `index.md` skeleton and individual `step-NN-<name>.md` files.
+
+### /execute
+
+```
+/execute <path-or-filename>
+```
+
+Executes a single implementation plan step. Argument is a step file path or filename (e.g., `step-03-sqlite-database.md`). Run from the target project's root directory.
+
+For code steps:
+1. **test-writer** (cyan) -- Writes test files from the step's Test Plan, locking down the contract.
+2. **implementer** (green) -- Writes production code against the existing tests.
+3. Orchestrator runs the project's test command (auto-detected).
+4. On failure: implementer fixes production code (max 3 retries, test files never modified).
+5. On success: marks the step done in `index.md` with `✓ ~~Step Title~~`.
+
+For scaffolding steps:
+1. **implementer** (green) -- Writes the literal files specified in the step.
+2. Orchestrator runs Post-Setup Verification commands.
+3. On failure: implementer fixes (max 3 retries).
+4. On success: marks the step done in `index.md`.
+
+### /review
+
+```
+/review [step-file]
+```
+
+Reviews uncommitted changes before commit. Runs `git diff` and `git diff --cached` to collect changes, then launches parallel review agents to check for bugs, CLAUDE.md compliance, historical context, prior PR comments, and code comment adherence. Each finding is scored 0-100; only issues scoring 80+ are reported.
+
+Optional argument: a step file path or filename. When provided, an additional agent checks the diff against the step specification for missing functionality, contradictions, and out-of-scope changes.
+
+## Components
+
+| Type | Name | Used by | Purpose |
+|------|------|---------|---------|
+| Command | plan | /plan | Orchestrates PRD-to-plan pipeline |
+| Command | execute | /execute | Orchestrates test-first step execution |
+| Command | review | /review | Orchestrates multi-agent diff review |
+| Agent | prd-analyzer | /plan | Interrogates PRD for completeness |
+| Agent | implementation-writer | /plan | Produces detailed step files |
+| Agent | test-writer | /execute | Writes tests before code |
+| Agent | implementer | /execute | Writes production code or scaffolding |
