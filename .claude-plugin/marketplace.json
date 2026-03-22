@@ -10,7 +10,7 @@
     {
       "name": "kusari-dev",
       "source": "./kusari-dev",
-      "description": "PRD-to-code pipeline: plan implementation from a PRD, then execute steps with test-first development",
+      "description": "PRD-to-code pipeline: plan, execute with test-first development, and review changes before commit",
       "version": "0.1.0"
     }
   ]

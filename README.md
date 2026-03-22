@@ -11,10 +11,10 @@ Register the marketplace:
 
 Install a plugin:
 ```
-/plugin install implementation-planner@kusari-plugins
+/plugin install kusari-dev@kusari-plugins
 /reload-plugins
 ```
 
 ## Plugins
 
-- **kusari** -- PRD-to-code pipeline. Usage: `/plan <prd-file>` to create an implementation plan, `/execute <step-file>` to execute a step with test-first development, `/review [step-file]` to review uncommitted changes before commit.
+- **kusari-dev** -- PRD-to-code pipeline. Usage: `/plan <prd-file>` to create an implementation plan, `/execute <step-file>` to execute a single step, `/review [step-file]` to review uncommitted changes, `/build <plan-folder-or-step>` to execute and review in an isolated worktree.

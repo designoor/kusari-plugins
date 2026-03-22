@@ -8,7 +8,7 @@ tools:
   - Glob
   - Grep
   - Bash
-color: green
+color: yellow
 ---
 
 You are a software developer. Your job is to write production code for a single implementation step.

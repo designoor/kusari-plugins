@@ -1,4 +1,4 @@
-# kusari
+# kusari-dev
 
 PRD-to-code pipeline. Plan implementation from a PRD, then execute steps with test-first development and automatic validation.
 
@@ -32,13 +32,10 @@ For code steps:
 2. **implementer** (green) -- Writes production code against the existing tests.
 3. Orchestrator runs the project's test command (auto-detected).
 4. On failure: implementer fixes production code (max 3 retries, test files never modified).
-5. On success: marks the step done in `index.md` with `✓ ~~Step Title~~`.
-
 For scaffolding steps:
 1. **implementer** (green) -- Writes the literal files specified in the step.
 2. Orchestrator runs Post-Setup Verification commands.
 3. On failure: implementer fixes (max 3 retries).
-4. On success: marks the step done in `index.md`.
 
 ### /review
 
@@ -50,6 +47,21 @@ Reviews uncommitted changes before commit. Runs `git diff` and `git diff --cache
 
 Optional argument: a step file path or filename. When provided, an additional agent checks the diff against the step specification for missing functionality, contradictions, and out-of-scope changes.
 
+### /build
+
+```
+/build <plan-folder-or-step-file>
+```
+
+Executes implementation steps in an isolated git worktree with automatic code review after each step. Accepts either a plan folder (executes all steps sequentially) or a single step file.
+
+For each step:
+1. Executes the step (same logic as `/execute`).
+2. Reviews the changes (same logic as `/review` with step-spec compliance).
+3. Commits on success, stops the entire build on failure.
+
+After all steps complete, reports the worktree path/branch and a consolidated summary of all choices and assumptions made by agents, so the user can course-correct.
+
 ## Components
 
 | Type | Name | Used by | Purpose |
@@ -57,7 +69,8 @@ Optional argument: a step file path or filename. When provided, an additional ag
 | Command | plan | /plan | Orchestrates PRD-to-plan pipeline |
 | Command | execute | /execute | Orchestrates test-first step execution |
 | Command | review | /review | Orchestrates multi-agent diff review |
+| Command | build | /build | Executes plan in worktree with per-step review |
 | Agent | prd-analyzer | /plan | Interrogates PRD for completeness |
 | Agent | implementation-writer | /plan | Produces detailed step files |
-| Agent | test-writer | /execute | Writes tests before code |
-| Agent | implementer | /execute | Writes production code or scaffolding |
+| Agent | test-writer | /execute, /build | Writes tests before code |
+| Agent | implementer | /execute, /build | Writes production code or scaffolding |
