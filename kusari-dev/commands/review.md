@@ -13,6 +13,8 @@ The user provided: `$ARGUMENTS`
 
 This is an optional argument. If provided, it is either a file path or a filename pointing to an implementation step file.
 
+- If no argument is provided, scan the current conversation for a prior `/execute` invocation. If one is found, use the filename or path from that invocation as the step file. If multiple `/execute` calls exist, use the most recent one. If none are found, proceed without a step file (review uncommitted changes only).
+
 - If it is a full path, read the file directly.
 - If it is just a filename, search the current working directory and its subdirectories to locate it. If multiple matches are found, ask the user which one they mean. If no matches are found, tell the user and stop.
 - If a step file is found, also find and read the sibling `index.md` in the same directory as the step file. This contains the implementation plan skeleton.
@@ -27,7 +29,17 @@ To do this, follow these steps precisely:
 1. Run `git diff` and `git diff --cached` to collect unstaged and staged changes. Combine the output. If both are empty (no uncommitted changes), report that to the user and stop.
 2. Use a Haiku agent to give you a list of file paths to (but not the contents of) any relevant CLAUDE.md files from the codebase: the root CLAUDE.md file (if one exists), as well as any CLAUDE.md files in the directories whose files appear in the diff
 3. Use a Haiku agent to read the combined diff output, and ask the agent to return a summary of the change
-4. Then, launch 5 parallel Sonnet agents (or 6, if a step file was provided) to independently code review the change. The agents should do the following, then return a list of issues and the reason each issue was flagged (eg. CLAUDE.md adherence, bug, historical git context, etc.):
+4. Then, launch 5 parallel Sonnet agents (or 6, if a step file was provided) to independently code review the change. Each agent MUST return its findings using this exact format per issue (no deviations):
+
+```
+ISSUE:
+title: <short generic label, max 8 words>
+location: <file_path:line_number>
+category: <one of: CLAUDE.md adherence | bug | historical context | PR context | code comment violation | spec compliance>
+description: <2-3 sentences: what is wrong, why it matters, what to consider>
+```
+
+If the agent finds no issues, it returns `NO ISSUES FOUND`. The agents:
    a. Agent #1: Audit the changes to make sure they comply with the CLAUDE.md. Note that CLAUDE.md is guidance for Claude as it writes code, so not all instructions will be applicable during code review.
    b. Agent #2: Read the file changes in the diff, then do a shallow scan for obvious bugs. Avoid reading extra context beyond the changes, focusing just on the changes themselves. Focus on large bugs, and avoid small issues and nitpicks. Ignore likely false positives.
    c. Agent #3: Read the git blame and history of the code modified, to identify any bugs in light of that historical context
@@ -41,7 +53,7 @@ To do this, follow these steps precisely:
    d. 75: Highly confident. The agent double checked the issue, and verified that it is very likely it is a real issue that will be hit in practice. The existing approach in the diff is insufficient. The issue is very important and will directly impact the code's functionality, or it is an issue that is directly mentioned in the relevant CLAUDE.md.
    e. 100: Absolutely certain. The agent double checked the issue, and confirmed that it is definitely a real issue, that will happen frequently in practice. The evidence directly confirms this.
 6. Filter out any issues with a score less than 80. If there are no issues that meet this criteria, do not proceed.
-7. Report the review results directly to the user. When writing your report, keep in mind to:
+7. Report the review results directly to the user using the table format below. Do not deviate from this format. When writing your report, keep in mind to:
    a. Keep your output brief
    b. Avoid emojis
    c. Cite relevant code using `file_path:line_number` references
@@ -62,7 +74,7 @@ Notes:
 - Do not check build signal or attempt to build or typecheck the app. These will run separately, and are not relevant to your code review.
 - Make a todo list first
 - You must cite each bug with a file path and line number (eg. if referring to a CLAUDE.md, cite it with its path)
-- For your final report, follow the following format precisely (assuming for this example that you found 3 issues):
+- For your final report, follow this table format precisely. Do not use any other layout:
 
 ---
 
@@ -70,17 +82,11 @@ Notes:
 
 Found 3 issues:
 
-1. <brief description of bug> (CLAUDE.md says "<...>")
-
-   `src/foo/bar.ts:42`
-
-2. <brief description of bug> (some/other/CLAUDE.md says "<...>")
-
-   `src/baz/qux.py:17`
-
-3. <brief description of bug> (bug due to <file and code snippet>)
-
-   `lib/thing.go:88`
+| # | Issue | Score | Location | Details |
+|---|-------|-------|----------|---------|
+| 1 | <short generic label, max 8 words> | <0-100> | `src/foo/bar.ts:42` | <2-3 sentences: what is wrong, why it matters, what to consider> |
+| 2 | <short generic label, max 8 words> | <0-100> | `src/baz/qux.py:17` | <2-3 sentences: what is wrong, why it matters, what to consider> |
+| 3 | <short generic label, max 8 words> | <0-100> | `lib/thing.go:88` | <2-3 sentences: what is wrong, why it matters, what to consider> |
 
 ---
 
@@ -92,4 +98,8 @@ Found 3 issues:
 
 No issues found. Checked for bugs and CLAUDE.md compliance.
 
+---
+
 - When citing code, use `file_path:line_number` format (e.g. `src/utils/parse.ts:42`). Provide enough context for the user to locate the issue.
+- Sort the table by score descending (highest confidence first).
+- The "Issue" column is the short generic label. The "Details" column carries the explanation and considerations. Do not merge or omit columns.
