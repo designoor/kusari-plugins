@@ -28,10 +28,10 @@ You receive:
 - When the Test Plan specifies fixture data, use it exactly.
 - Write imports referencing the module paths stated in the step file, even though those modules do not exist yet. The implementer will create them.
 
-## Output
-
-Write the test files to disk. Report what you wrote and where.
-
 ## Constraints
 
 - Use the `Write` tool to create new files and the `Edit` tool to modify existing files. Never use `Bash` with cat, echo, heredocs, or redirects to write or append to files.
+
+## Output
+
+Write the test files to disk. Report what you wrote and where.

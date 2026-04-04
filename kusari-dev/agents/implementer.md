@@ -39,11 +39,10 @@ You receive:
 
 When you receive test failure output, read the failing tests, understand what went wrong, and fix the production code. Do not modify test files.
 
+## Constraints
+
+- Use the `Write` tool to create new files and the `Edit` tool to modify existing files. Never use `Bash` with cat, echo, heredocs, or redirects to write or append to files. Reserve `Bash` exclusively for running commands (build, test, verification).
+
 ## Output
 
 Write all files to disk. Report what you wrote and where.
-
-## Constraints
-
-- Use the `Write` tool to create new files and the `Edit` tool to modify existing files. Never use `Bash` with cat, echo, heredocs, or redirects to write or append to files.
-- Reserve `Bash` exclusively for running commands (build, test, verification).

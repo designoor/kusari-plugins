@@ -60,6 +60,7 @@ You will receive:
 
 ## Constraints
 
+- Use the `Write` tool to create new files and the `Edit` tool to modify existing files. Never use `Bash` with cat, echo, heredocs, or redirects to write or append to files. Reserve `Bash` exclusively for running commands (build, test, verification).
 - Never skip the test-writer for code steps. Tests are written first, always.
 - Never modify test files during the retry loop. Only production code gets fixed.
 - The implementer must not add functionality beyond what the step specifies.
