@@ -20,12 +20,11 @@ This is either a path to an implementation plan folder (containing `index.md` an
 
 ## Setup
 
-1. Read `CLAUDE.md` from the current working directory if it exists.
-2. Read `index.md` (from the plan folder, or sibling to the step file).
-3. Determine the step list:
+1. Read `index.md` (from the plan folder, or sibling to the step file).
+2. Determine the step list:
    - **Folder input:** collect all `step-NN-*.md` files, sorted by step number.
    - **Single step input:** the list contains only that one step file.
-4. Create an isolated git worktree:
+3. Create an isolated git worktree:
    - Generate a branch name: `build/<plan-folder-name>` (or `build/<step-filename>` for single steps).
    - Run `git worktree add <worktree-path> -b <branch-name>` where `<worktree-path>` is a temporary directory (e.g., `../<repo-name>-build-<timestamp>`).
    - `cd` into the worktree directory. All subsequent work happens there.
@@ -45,20 +44,17 @@ For each step in the step list, in order:
 ### Phase 2: Review
 
 1. Read `commands/review.md` (sibling to this file).
-2. Follow its steps, starting from step 1 (diff collection). Skip its Input and Setup sections -- the step file and index.md are already loaded, and CLAUDE.md is already read.
+2. Follow its steps, starting from step 1 (diff collection). Skip its Input and Setup sections -- the step file and index.md are already loaded.
 3. Pass the current step file as the step-file argument so Agent #6 (spec compliance) is included.
-4. If the review reports issues scoring 80+, stop the entire build. Report the issues to the user with the step name.
+4. The review must always produce its full report table with every issue found, regardless of score. This table is shown to the user even when the build continues. Do not stop the build based on issue scores. The user decides whether to act on any reported issues after the build completes.
 
 ### Phase 3: Stage
 
-After the step passes review with no issues (or only issues below 80):
+After the review report is shown to the user:
 
-1. Mark the step as done:
-   - In `index.md`, find the step heading and transform `### Step N: Step Title` to `### ✓ ~~Step N: Step Title~~`. If the heading has a classification tag like `[scaffolding]` or `[code]`, keep it after the strikethrough: `### ✓ ~~Step N: Step Title~~ [code]`.
-   - In the step file itself, prepend `✓` to its top-level heading.
-2. Stage all changes: `git add -A` in the worktree.
-3. Commit with message: `build: step N - <step title>`.
-4. Proceed to the next step.
+1. Stage all changes: `git add -A` in the worktree.
+2. Commit with message: `build: step N - <step title>`.
+3. Proceed to the next step.
 
 ## Completion
 
