@@ -1,3 +1,9 @@
+```
+░█░█░█░█░█▀▀░█▀█░█▀▄░▀█▀░░░░░█▀▄░▀█▀░▀▀█
+░█▀▄░█░█░▀▀█░█▀█░█▀▄░░█░░▄▄▄░█▀▄░░█░░▄▀░
+░▀░▀░▀▀▀░▀▀▀░▀░▀░▀░▀░▀▀▀░░░░░▀▀░░▀▀▀░▀▀▀
+```
+
 # kusari-biz
 
 Business evaluation tools. Assess ideas, product plans, and features through a panel of investor personas.
