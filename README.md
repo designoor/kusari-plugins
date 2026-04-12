@@ -1,3 +1,7 @@
+░█░█░█░█░█▀▀░█▀█░█▀▄░▀█▀
+░█▀▄░█░█░▀▀█░█▀█░█▀▄░░█░
+░▀░▀░▀▀▀░▀▀▀░▀░▀░▀░▀░▀▀▀
+
 # kusari-plugins
 
 Claude Code plugin collection.
@@ -6,21 +10,37 @@ Claude Code plugin collection.
 
 Register the marketplace:
 ```
-/plugin marketplace add /Users/ryowa/Repos/kusari-plugins
+/plugin marketplace add /path/to/repository/kusari-plugins
 ```
 
 Install a plugin:
 ```
-/plugin install kusari-dev@kusari-plugins
+/plugin install {plugin name}@kusari-plugins
 /reload-plugins
 ```
 
 ## Plugins
 
-- **kusari-dev**: PRD-to-code pipeline.
-  - `/plan <prd-file>` to create an implementation plan
-  - `/execute <step-file>` to execute a single step
-  - `/review [step-file]` to review uncommitted changes
-  - `/build <plan-folder-or-step>` to execute and review in an isolated worktree
-  - `/finish [step-title]` to commit, merge, push, and clean up the worktree
-  - `/evaluate <idea>` to run an investor panel evaluation
+### kusari-dev
+
+PRD-to-code pipeline. Plan implementation from a PRD, execute steps test-first in an isolated worktree, review diffs, then merge.
+
+- `/plan <prd-file>` analyze PRD and generate step files
+- `/build <plan-folder-or-step>` execute steps in a worktree with per-step review
+- `/execute <step-file>` run a single step
+- `/review [step-file]` multi-agent review of uncommitted changes
+- `/finish [step-title]` commit, merge, push, clean up worktree
+
+### kusari-biz
+
+Business evaluation via a panel of investor personas.
+
+- `/evaluate <idea-or-file>` run seven investor personas in parallel and synthesize a consensus report
+
+### kusari-typescript
+
+TypeScript skills loaded on demand when editing TS/TSX.
+
+- `typescript-standards` type safety, clarity, maintainability
+- `typescript-architecture` structural review, coupling, abstractions
+- `typescript-tests` test design and quality
