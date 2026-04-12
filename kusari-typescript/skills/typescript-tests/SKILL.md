@@ -13,6 +13,8 @@ When this skill is loaded, output exactly this block before any other response:
 ░░▀░░▀▀▀░░░░░░▀░░▀▀▀░▀▀▀░░▀░░▀▀▀
 ```
 
+**Note: The current year is 2026. Use this when searching for recent documentation.**
+
 Standards for writing tests that catch real regressions -- not tests that exist to satisfy a coverage metric. Every test must answer: "what breaks if this test is deleted?"
 
 ## Test Structure
