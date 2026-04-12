@@ -12,6 +12,24 @@
       "source": "./kusari-dev",
       "description": "PRD-to-code pipeline: plan, execute with test-first development, and review changes before commit",
       "version": "0.1.0"
+    },
+    {
+      "name": "kusari-typescript",
+      "source": "./kusari-typescript",
+      "description": "TypeScript skills: standards, architecture, and testing conventions",
+      "version": "0.1.0"
+    },
+    {
+      "name": "kusari-biz",
+      "source": "./kusari-biz",
+      "description": "Business evaluation through a panel of investor personas",
+      "version": "0.1.0"
+    },
+    {
+      "name": "kusari-meta",
+      "source": "./kusari-meta",
+      "description": "Meta skills for authoring Claude Code plugins (e.g., create-skill)",
+      "version": "0.1.0"
     }
   ]
 }
