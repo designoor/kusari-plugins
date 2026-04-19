@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>typescript-standards - Eval Report - Iteration 2</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface-2: #242836;
+    --border: #2e3345;
+    --text: #e0e4f0;
+    --text-dim: #8890a8;
+    --pass: #2dd4a0;
+    --pass-bg: #0d3d2e;
+    --fail: #f44060;
+    --fail-bg: #3d0d1a;
+    --accent: #4cc9f0;
+    --accent-dim: #1a3a4a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  .subtitle { color: var(--text-dim); margin-bottom: 24px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 2px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .tab { padding: 10px 20px; cursor: pointer; color: var(--text-dim); border-bottom: 2px solid transparent; transition: all 0.15s; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Benchmark table */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--surface); color: var(--text-dim); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  td { background: var(--surface-2); }
+
+  /* Eval cards */
+  .eval-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .eval-nav button { padding: 6px 16px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); border-radius: 4px; cursor: pointer; }
+  .eval-nav button:hover { background: var(--border); }
+  .eval-nav button:disabled { opacity: 0.3; cursor: default; }
+  .eval-counter { color: var(--text-dim); font-size: 0.9rem; }
+  .eval-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .eval-card h3 { font-size: 1.1rem; margin-bottom: 12px; }
+  .eval-prompt { background: var(--surface-2); padding: 12px; border-radius: 4px; margin-bottom: 16px; font-style: italic; color: var(--text-dim); white-space: pre-wrap; }
+
+  /* Assertions */
+  .assertion { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; margin: 4px 0; border-radius: 4px; }
+  .assertion.pass { background: var(--pass-bg); }
+  .assertion.fail { background: var(--fail-bg); }
+  .assertion-icon { font-weight: bold; min-width: 20px; }
+  .assertion.pass .assertion-icon { color: var(--pass); }
+  .assertion.fail .assertion-icon { color: var(--fail); }
+  .assertion-text { font-weight: 500; }
+  .assertion-evidence { color: var(--text-dim); font-size: 0.85rem; margin-top: 2px; }
+
+  /* Configs (with_skill / without_skill) */
+  .config-section { margin: 16px 0; }
+  .config-label { font-weight: 600; color: var(--accent); margin-bottom: 8px; font-size: 0.95rem; }
+
+  /* Feedback */
+  .feedback-section { margin-top: 16px; }
+  .feedback-section label { display: block; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 4px; }
+  .feedback-section textarea { width: 100%; min-height: 80px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); border-radius: 4px; padding: 10px; font-family: inherit; font-size: 0.9rem; resize: vertical; }
+  .feedback-section textarea:focus { outline: none; border-color: var(--accent); }
+
+  /* Summary cards */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .summary-card .label { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .summary-card .value { font-size: 1.8rem; font-weight: 700; margin-top: 4px; }
+  .summary-card .detail { color: var(--text-dim); font-size: 0.85rem; margin-top: 2px; }
+  .delta-positive { color: var(--pass); }
+  .delta-negative { color: var(--fail); }
+
+  /* Observations */
+  .observation { background: var(--surface-2); padding: 10px 14px; border-left: 3px solid var(--accent); margin: 8px 0; border-radius: 0 4px 4px 0; }
+
+  /* Actions */
+  .actions { display: flex; gap: 12px; margin-top: 24px; }
+  .actions button { padding: 10px 24px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+  .btn-primary { background: var(--accent); color: var(--bg); }
+  .btn-primary:hover { opacity: 0.9; }
+
+  /* Keyboard hint */
+  .kbd-hint { color: var(--text-dim); font-size: 0.8rem; margin-top: 8px; }
+
+  /* Outputs listing */
+  .output-files { margin: 8px 0; }
+  .output-file { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--surface-2); border-radius: 4px; margin: 4px 0; color: var(--text-dim); font-family: monospace; font-size: 0.85rem; }
+
+  /* Timing */
+  .timing-row { display: flex; gap: 24px; color: var(--text-dim); font-size: 0.85rem; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>typescript-standards</h1>
+  <p class="subtitle">Eval Report - Iteration 2</p>
+  <p class="subtitle" id="meta-line"></p>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('outputs')">Outputs</div>
+    <div class="tab" onclick="switchTab('benchmark')">Benchmark</div>
+    <div class="tab" onclick="switchTab('analysis')">Analysis</div>
+  </div>
+
+  <!-- OUTPUTS TAB -->
+  <div id="tab-outputs" class="tab-content active">
+    <div class="eval-nav">
+      <button onclick="prevEval()" id="btn-prev">Prev</button>
+      <span class="eval-counter" id="eval-counter"></span>
+      <button onclick="nextEval()" id="btn-next">Next</button>
+    </div>
+    <div id="eval-display"></div>
+    <p class="kbd-hint">Arrow keys: navigate between evals</p>
+  </div>
+
+  <!-- BENCHMARK TAB -->
+  <div id="tab-benchmark" class="tab-content">
+    <div id="benchmark-display"></div>
+  </div>
+
+  <!-- ANALYSIS TAB -->
+  <div id="tab-analysis" class="tab-content">
+    <div id="analysis-display"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-primary" onclick="exportFeedback()">Export Feedback</button>
+  </div>
+</div>
+
+<script>
+// Data injected by the skill
+const REPORT_DATA = {
+  "metadata": {
+    "skill_name": "typescript-standards",
+    "model": "sonnet",
+    "timestamp": "2026-04-19T11:30:00Z"
+  },
+  "evals": [
+    {
+      "eval_id": 0,
+      "eval_name": "payment-badge-exhaustive-handling",
+      "prompt": "I need a function that takes a payment status and returns the appropriate badge color for our UI. The statuses are 'pending', 'completed', 'failed', and 'refunded'. Here's what I have so far in src/components/PaymentBadge.tsx but the switch just has a default that returns gray.",
+      "configs": [
+        {
+          "config_name": "with_skill",
+          "output_files": ["outputs/PaymentBadge.tsx"],
+          "timing": {"total_tokens": 13578, "total_duration_seconds": 21.7},
+          "expectations": [
+            {"text": "Status values defined with as const and type derived via typeof, not a hand-written union", "passed": false, "evidence": "PaymentStatus is declared as a hand-written union type: export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded'. No as const object is used and no typeof derivation is present."},
+            {"text": "Return type is a specific union (e.g. BadgeColor), not string", "passed": false, "evidence": "getPaymentBadgeColor is typed as returning string. No narrower union type (e.g. BadgeColor) is defined or used as the return type."},
+            {"text": "No runtime default fallback value -- missing cases are compile errors only", "passed": true, "evidence": "BADGE_COLORS is a Record<PaymentStatus, string> with all four statuses covered. The function returns BADGE_COLORS[status] directly with no fallback."},
+            {"text": "Uses Record<Status, Color> or exhaustive switch with never check", "passed": true, "evidence": "BADGE_COLORS is typed as Record<PaymentStatus, string>, which forces all members of PaymentStatus to be present at compile time."},
+            {"text": "Uses named export, not default export", "passed": true, "evidence": "Both getPaymentBadgeColor and PaymentBadge use named exports (export function). No default export is present."}
+          ]
+        },
+        {
+          "config_name": "without_skill",
+          "output_files": ["outputs/PaymentBadge.tsx"],
+          "timing": {"total_tokens": 9915, "total_duration_seconds": 7.4},
+          "expectations": [
+            {"text": "Status values defined with as const and type derived via typeof, not a hand-written union", "passed": false, "evidence": "Uses a hand-written union type. No as const object or typeof derivation present."},
+            {"text": "Return type is a specific union (e.g. BadgeColor), not string", "passed": false, "evidence": "Function signature returns string, not a named union type."},
+            {"text": "No runtime default fallback value -- missing cases are compile errors only", "passed": false, "evidence": "Switch statement includes default: return 'gray' which is a runtime fallback."},
+            {"text": "Uses Record<Status, Color> or exhaustive switch with never check", "passed": false, "evidence": "Uses a switch statement with a default branch. No never check is present."},
+            {"text": "Uses named export, not default export", "passed": false, "evidence": "Neither export function nor export default appears. The function and type are not exported at all."}
+          ]
+        }
+      ]
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "api-client-boundary-parsing",
+      "prompt": "We're fetching user profiles from /api/users/:id and the response has name, email, role (admin/member/viewer), and an optional phoneNumber. Can you write the API client function in src/services/userService.ts? We're using axios.",
+      "configs": [
+        {
+          "config_name": "with_skill",
+          "output_files": ["outputs/userService.ts"],
+          "timing": {"total_tokens": 13517, "total_duration_seconds": 22.9},
+          "expectations": [
+            {"text": "Uses Zod or equivalent schema for response parsing", "passed": true, "evidence": "UserProfileSchema = z.object({...}) defined and UserProfileSchema.parse(response.data) called."},
+            {"text": "Type derived from schema (z.infer or equivalent), not a hand-written interface", "passed": true, "evidence": "export type UserProfile = z.infer<typeof UserProfileSchema>. No hand-written interface."},
+            {"text": "Parsing happens at the API boundary function, not deferred to consumers", "passed": true, "evidence": "Parse occurs inside fetchUserProfile before returning; callers receive validated data."},
+            {"text": "Uses named export, not default export", "passed": true, "evidence": "Both UserProfile and fetchUserProfile use named exports; no default export present."}
+          ]
+        },
+        {
+          "config_name": "without_skill",
+          "output_files": ["outputs/userService.ts"],
+          "timing": {"total_tokens": 9879, "total_duration_seconds": 8.2},
+          "expectations": [
+            {"text": "Uses Zod or equivalent schema for response parsing", "passed": false, "evidence": "No schema validation library is imported or used. The code relies on an axios generic type parameter, which is compile-time only."},
+            {"text": "Type derived from schema (z.infer or equivalent), not a hand-written interface", "passed": false, "evidence": "UserProfile is a hand-written interface. No schema inference is used."},
+            {"text": "Parsing happens at the API boundary function, not deferred to consumers", "passed": false, "evidence": "No runtime parsing occurs. response.data is returned with only a TypeScript generic cast."},
+            {"text": "Uses named export, not default export", "passed": true, "evidence": "export async function getUserProfile is a named export."}
+          ]
+        }
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "code-review-violation-detection",
+      "prompt": "Can you review this TypeScript file and tell me what to fix?\n\nFile: src/utils/dataProcessor.ts",
+      "configs": [
+        {
+          "config_name": "with_skill",
+          "output_files": ["outputs/review.md"],
+          "timing": {"total_tokens": 15395, "total_duration_seconds": 48.2},
+          "expectations": [
+            {"text": "Flags every any usage in the file", "passed": true, "evidence": "Finding #2 identifies all four: data (line 12), result (line 13), getConfig() return (line 35), user in formatUser (line 39)."},
+            {"text": "Flags the unsafe as cast", "passed": true, "evidence": "Finding #3 calls out data as UserData on line 16 as an unsafe cast without a type guard."},
+            {"text": "Flags the default export", "passed": true, "evidence": "Finding #1 explicitly flags the default export on line 12."},
+            {"text": "Flags boolean positional parameters", "passed": true, "evidence": "Finding #6 flags shouldValidate: boolean, includeMetadata: boolean and recommends a named options object."},
+            {"text": "Flags the non-null assertion (value!)", "passed": true, "evidence": "Finding #4 calls out config.settings!.timeout on line 23 with correct reasoning about the crash path."},
+            {"text": "Flags the parallel type definition drift (role: string vs literal union)", "passed": false, "evidence": "Finding #5 flags the unsafe cast on line 40 but does not identify the structural drift between UserData.role: string and the literal union."},
+            {"text": "Uses the confidence framework: findings categorized as high/moderate/low confidence", "passed": false, "evidence": "The review is a flat numbered list with no high/moderate/low confidence categorization anywhere."},
+            {"text": "Maps findings to specific standard sections from the skill", "passed": false, "evidence": "No standard section names or references appear in the review."},
+            {"text": "Does NOT flag formatting or import order issues", "passed": true, "evidence": "All eight findings address substantive type safety or structural issues only."}
+          ]
+        },
+        {
+          "config_name": "without_skill",
+          "output_files": ["outputs/review.md"],
+          "timing": {"total_tokens": 12170, "total_duration_seconds": 41.2},
+          "expectations": [
+            {"text": "Flags every any usage in the file", "passed": true, "evidence": "Item 1 lists all four any usages by line."},
+            {"text": "Flags the unsafe as cast", "passed": true, "evidence": "Item 2 flags data as UserData on line 16. Item 5 flags user.role cast on line 40."},
+            {"text": "Flags the default export", "passed": true, "evidence": "Item 6 explicitly flags processData as a default export."},
+            {"text": "Flags boolean positional parameters", "passed": false, "evidence": "The review never mentions the two boolean positional parameters."},
+            {"text": "Flags the non-null assertion (value!)", "passed": true, "evidence": "Item 3 flags config.settings!.timeout on line 23."},
+            {"text": "Flags the parallel type definition drift (role: string vs literal union)", "passed": false, "evidence": "Item 5 flags the unsafe cast but frames it only as a runtime safety issue. Never identifies the drift between role: string and the literal union."},
+            {"text": "Uses the confidence framework: findings categorized as high/moderate/low confidence", "passed": false, "evidence": "Uses a flat numbered list. No high/moderate/low confidence labels appear."},
+            {"text": "Maps findings to specific standard sections from the skill", "passed": false, "evidence": "No references to standard section names appear."},
+            {"text": "Does NOT flag formatting or import order issues", "passed": true, "evidence": "No mention of formatting, style, or import order."}
+          ]
+        }
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "refactoring-judgment-calibration",
+      "prompt": "I have this React component in src/components/Dashboard.tsx that fetches data, transforms it, and renders a chart all in one 180-line function. The data fetching uses useEffect with a manual fetch call. Should I break this up? If so, how?",
+      "configs": [
+        {
+          "config_name": "with_skill",
+          "output_files": ["outputs/recommendation.md"],
+          "timing": {"total_tokens": 14852, "total_duration_seconds": 61.1},
+          "expectations": [
+            {"text": "Recommends extraction of data fetching from rendering concern", "passed": true, "evidence": "Explicitly recommends extracting a useDashboardData hook to own the fetch/async state, separate from the Dashboard component."},
+            {"text": "Does NOT blindly recommend extracting everything -- applies judgment about when extraction adds unnecessary layers", "passed": true, "evidence": "States: Sub-components that are trivial JSX with no independent reuse should stay inline. Extraction that adds a layer without reducing complexity is not an improvement."},
+            {"text": "Any new files or functions use named exports", "passed": true, "evidence": "States: Named exports only on all extracted modules. No default exports. All four proposed files listed with the rule applied."}
+          ]
+        },
+        {
+          "config_name": "without_skill",
+          "output_files": ["outputs/recommendation.md"],
+          "timing": {"total_tokens": 11329, "total_duration_seconds": 26.8},
+          "expectations": [
+            {"text": "Recommends extraction of data fetching from rendering concern", "passed": true, "evidence": "Recommends extracting useEffect + fetch into a dedicated useDashboardData hook."},
+            {"text": "Does NOT blindly recommend extracting everything -- applies judgment about when extraction adds unnecessary layers", "passed": true, "evidence": "Prioritization section advises doing hook extraction first. React Query/SWR section states do not add a data-fetching library solely for this component."},
+            {"text": "Any new files or functions use named exports", "passed": true, "evidence": "All four constructs use named exports. No default exports anywhere."}
+          ]
+        }
+      ]
+    }
+  ],
+  "benchmark": {
+    "run_summary": {
+      "with_skill": {
+        "pass_rate": {"mean": 0.817, "stddev": 0.189, "min": 0.6, "max": 1.0},
+        "time_seconds": {"mean": 38.5, "stddev": 18.4, "min": 21.7, "max": 61.1},
+        "tokens": {"mean": 14336, "stddev": 851, "min": 13517, "max": 15395}
+      },
+      "without_skill": {
+        "pass_rate": {"mean": 0.452, "stddev": 0.423, "min": 0.0, "max": 1.0},
+        "time_seconds": {"mean": 20.9, "stddev": 15.8, "min": 7.4, "max": 41.2},
+        "tokens": {"mean": 10823, "stddev": 1095, "min": 9879, "max": 12170}
+      },
+      "delta": {
+        "pass_rate": "+36.5%",
+        "time_seconds": "+17.6s",
+        "tokens": "+3512"
+      }
+    },
+    "runs": [
+      {"eval_id": 0, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 0.6, "time_seconds": 21.7, "tokens": 13578}},
+      {"eval_id": 0, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.0, "time_seconds": 7.4, "tokens": 9915}},
+      {"eval_id": 1, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "time_seconds": 22.9, "tokens": 13517}},
+      {"eval_id": 1, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.25, "time_seconds": 8.2, "tokens": 9879}},
+      {"eval_id": 2, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 0.667, "time_seconds": 48.2, "tokens": 15395}},
+      {"eval_id": 2, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.556, "time_seconds": 41.2, "tokens": 12170}},
+      {"eval_id": 3, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "time_seconds": 61.1, "tokens": 14852}},
+      {"eval_id": 3, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 1.0, "time_seconds": 26.8, "tokens": 11329}}
+    ]
+  },
+  "analysis": {
+    "patterns": [
+      {"type": "non_discriminating", "assertion": "Eval 3 -- all assertions", "detail": "Eval 3 (refactoring judgment) passes 3/3 for both configs. Sonnet produces identical quality refactoring advice with or without the skill. Same result as iteration 1 with Opus.", "suggestion": "Add assertions that test for skill-specific behaviors like boundary parsing recommendations or confidence-calibrated judgment."},
+      {"type": "model_regression", "assertion": "Eval 0 -- as const derivation + return type union", "detail": "Eval 0 with-skill dropped from 5/5 (Opus) to 3/5 (Sonnet). Sonnet failed to use as const derivation and specific return type union despite the skill explicitly teaching these patterns.", "suggestion": "The skill's instructions on as const derivation and return type specificity may need stronger emphasis or worked examples to land with smaller models."},
+      {"type": "model_regression", "assertion": "Eval 2 -- confidence framework + section mapping", "detail": "Eval 2 with-skill: Sonnet ignored the confidence framework and section mapping entirely. These are structural output requirements from the skill.", "suggestion": "The skill may need to make these output format requirements more explicit, possibly with a template."},
+      {"type": "strong_discriminator", "assertion": "Eval 1 -- boundary parsing with Zod", "detail": "Eval 1 remains the strongest discriminator: 4/4 with skill vs 1/4 without. Boundary parsing with Zod is a clear capability uplift that Sonnet does not produce unprompted.", "suggestion": "This eval reliably measures the skill's core value proposition across both Opus and Sonnet."}
+    ],
+    "observations": [
+      "Opus outperforms Sonnet both with and without the skill (94.4% vs 81.7% with-skill, 52.8% vs 45.2% without-skill)",
+      "The skill provides +36.5% uplift on Sonnet vs +41.6% on Opus",
+      "Eval 1 (boundary parsing) is the most stable discriminator across models",
+      "Eval 3 (refactoring) is non-discriminating across both models",
+      "Eval 0 shows the largest model gap: Opus achieves 5/5 with-skill, Sonnet only 3/5",
+      "Sonnet uses ~33% fewer tokens on average but still gets meaningful uplift from the skill",
+      "Token overhead from skill loading is proportionally larger on Sonnet: +32% tokens for +36.5% pass rate improvement"
+    ]
+  }
+};
+
+let currentEvalIndex = 0;
+const feedbackStore = {};
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function renderEval(index) {
+  const evals = REPORT_DATA.evals || [];
+  if (!evals.length) {
+    document.getElementById('eval-display').innerHTML = '<p>No eval data available.</p>';
+    return;
+  }
+  const ev = evals[index];
+  document.getElementById('eval-counter').textContent = `${index + 1} / ${evals.length}`;
+  document.getElementById('btn-prev').disabled = index === 0;
+  document.getElementById('btn-next').disabled = index === evals.length - 1;
+
+  let html = `<div class="eval-card">
+    <h3>${escHtml(ev.eval_name || 'Eval ' + ev.eval_id)}</h3>
+    <div class="eval-prompt">${escHtml(ev.prompt)}</div>`;
+
+  // Render each configuration's results
+  const configs = ev.configs || [];
+  for (const cfg of configs) {
+    html += `<div class="config-section">
+      <div class="config-label">${escHtml(cfg.config_name)}</div>`;
+
+    // Output files
+    if (cfg.output_files && cfg.output_files.length) {
+      html += '<div class="output-files">';
+      for (const f of cfg.output_files) {
+        html += `<div class="output-file">${escHtml(f)}</div>`;
+      }
+      html += '</div>';
+    }
+
+    // Timing
+    if (cfg.timing) {
+      html += `<div class="timing-row">
+        <span>Tokens: ${cfg.timing.total_tokens || '?'}</span>
+        <span>Duration: ${cfg.timing.total_duration_seconds ? cfg.timing.total_duration_seconds.toFixed(1) + 's' : '?'}</span>
+      </div>`;
+    }
+
+    // Assertions
+    if (cfg.expectations && cfg.expectations.length) {
+      html += '<div style="margin-top:12px">';
+      for (const exp of cfg.expectations) {
+        const cls = exp.passed ? 'pass' : 'fail';
+        const icon = exp.passed ? 'P' : 'F';
+        html += `<div class="assertion ${cls}">
+          <span class="assertion-icon">${icon}</span>
+          <div>
+            <div class="assertion-text">${escHtml(exp.text)}</div>
+            <div class="assertion-evidence">${escHtml(exp.evidence || '')}</div>
+          </div>
+        </div>`;
+      }
+      html += '</div>';
+    }
+
+    html += '</div>';
+  }
+
+  // Feedback
+  const savedFeedback = feedbackStore[ev.eval_id] || '';
+  html += `<div class="feedback-section">
+    <label>Feedback for this eval:</label>
+    <textarea id="feedback-${ev.eval_id}" oninput="saveFeedback(${ev.eval_id})">${escHtml(savedFeedback)}</textarea>
+  </div>`;
+
+  html += '</div>';
+  document.getElementById('eval-display').innerHTML = html;
+}
+
+function saveFeedback(evalId) {
+  const el = document.getElementById('feedback-' + evalId);
+  if (el) feedbackStore[evalId] = el.value;
+}
+
+function prevEval() {
+  if (currentEvalIndex > 0) { currentEvalIndex--; renderEval(currentEvalIndex); }
+}
+
+function nextEval() {
+  const evals = REPORT_DATA.evals || [];
+  if (currentEvalIndex < evals.length - 1) { currentEvalIndex++; renderEval(currentEvalIndex); }
+}
+
+function renderBenchmark() {
+  const bm = REPORT_DATA.benchmark || {};
+  const summary = bm.run_summary || {};
+  const configs = Object.keys(summary).filter(k => k !== 'delta');
+  const delta = summary.delta || {};
+
+  let html = '<div class="summary-grid">';
+
+  // Summary cards
+  for (const cfg of configs) {
+    const pr = summary[cfg]?.pass_rate || {};
+    const label = cfg.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    html += `<div class="summary-card">
+      <div class="label">${escHtml(label)} Pass Rate</div>
+      <div class="value">${(pr.mean * 100).toFixed(0)}%</div>
+      <div class="detail">+/- ${(pr.stddev * 100).toFixed(0)}% (${pr.min !== undefined ? (pr.min * 100).toFixed(0) : '?'}% - ${pr.max !== undefined ? (pr.max * 100).toFixed(0) : '?'}%)</div>
+    </div>`;
+  }
+
+  if (delta.pass_rate) {
+    const val = parseFloat(delta.pass_rate);
+    const cls = val >= 0 ? 'delta-positive' : 'delta-negative';
+    html += `<div class="summary-card">
+      <div class="label">Delta Pass Rate</div>
+      <div class="value ${cls}">${delta.pass_rate}</div>
+    </div>`;
+  }
+  html += '</div>';
+
+  // Full table
+  if (configs.length) {
+    html += '<table><thead><tr><th>Metric</th>';
+    for (const cfg of configs) {
+      html += `<th>${escHtml(cfg.replace(/_/g, ' '))}</th>`;
+    }
+    html += '<th>Delta</th></tr></thead><tbody>';
+
+    for (const metric of ['pass_rate', 'time_seconds', 'tokens']) {
+      html += `<tr><td>${metric.replace(/_/g, ' ')}</td>`;
+      for (const cfg of configs) {
+        const s = summary[cfg]?.[metric] || {};
+        const fmt = metric === 'pass_rate'
+          ? `${(s.mean * 100).toFixed(0)}% +/- ${(s.stddev * 100).toFixed(0)}%`
+          : metric === 'time_seconds'
+          ? `${s.mean?.toFixed(1) || 0}s +/- ${s.stddev?.toFixed(1) || 0}s`
+          : `${Math.round(s.mean || 0)} +/- ${Math.round(s.stddev || 0)}`;
+        html += `<td>${fmt}</td>`;
+      }
+      html += `<td>${delta[metric] || '--'}</td></tr>`;
+    }
+    html += '</tbody></table>';
+  }
+
+  // Per-run breakdown
+  const runs = bm.runs || [];
+  if (runs.length) {
+    html += '<h3 style="margin-top:24px;margin-bottom:12px">Per-Run Results</h3>';
+    html += '<table><thead><tr><th>Eval</th><th>Config</th><th>Run</th><th>Pass Rate</th><th>Time</th><th>Tokens</th></tr></thead><tbody>';
+    for (const r of runs) {
+      html += `<tr>
+        <td>${r.eval_id}</td>
+        <td>${escHtml(r.configuration)}</td>
+        <td>${r.run_number}</td>
+        <td>${(r.result.pass_rate * 100).toFixed(0)}%</td>
+        <td>${r.result.time_seconds?.toFixed(1) || '?'}s</td>
+        <td>${r.result.tokens || '?'}</td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+  }
+
+  document.getElementById('benchmark-display').innerHTML = html;
+}
+
+function renderAnalysis() {
+  const analysis = REPORT_DATA.analysis || {};
+  const patterns = analysis.patterns || [];
+  const observations = analysis.observations || [];
+
+  let html = '';
+
+  if (patterns.length) {
+    html += '<h3 style="margin-bottom:12px">Patterns</h3>';
+    for (const p of patterns) {
+      const cls = p.type === 'always_pass' ? 'pass' : 'fail';
+      html += `<div class="assertion ${cls}" style="margin-bottom:8px">
+        <div>
+          <div class="assertion-text">${escHtml(p.type)}: ${escHtml(p.assertion || '')}</div>
+          <div class="assertion-evidence">${escHtml(p.detail || '')}</div>
+          <div class="assertion-evidence" style="margin-top:4px"><strong>Suggestion:</strong> ${escHtml(p.suggestion || '')}</div>
+        </div>
+      </div>`;
+    }
+  }
+
+  if (observations.length) {
+    html += '<h3 style="margin-top:24px;margin-bottom:12px">Observations</h3>';
+    for (const obs of observations) {
+      html += `<div class="observation">${escHtml(obs)}</div>`;
+    }
+  }
+
+  if (!patterns.length && !observations.length) {
+    html += '<p style="color:var(--text-dim)">No analysis data available.</p>';
+  }
+
+  document.getElementById('analysis-display').innerHTML = html;
+}
+
+function exportFeedback() {
+  const evals = REPORT_DATA.evals || [];
+  const reviews = evals.map(ev => ({
+    eval_id: ev.eval_id,
+    eval_name: ev.eval_name || 'eval-' + ev.eval_id,
+    feedback: feedbackStore[ev.eval_id] || '',
+    timestamp: new Date().toISOString()
+  }));
+  const data = { reviews, status: 'complete' };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'feedback.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function escHtml(s) {
+  if (typeof s !== 'string') return '';
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowLeft') prevEval();
+  if (e.key === 'ArrowRight') nextEval();
+});
+
+// Render metadata line
+const meta = REPORT_DATA.metadata || {};
+if (meta.model || meta.timestamp) {
+  const parts = [];
+  if (meta.model) parts.push('Model: ' + meta.model);
+  if (meta.timestamp) parts.push('Run: ' + meta.timestamp);
+  document.getElementById('meta-line').textContent = parts.join('  |  ');
+}
+
+// Init
+renderEval(0);
+renderBenchmark();
+renderAnalysis();
+</script>
+</body>
+</html>

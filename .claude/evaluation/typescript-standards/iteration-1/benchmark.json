@@ -1,0 +1,207 @@
+{
+  "metadata": {
+    "skill_name": "typescript-standards",
+    "skill_path": "kusari-typescript/skills/typescript-standards",
+    "model": "claude-opus-4-6",
+    "timestamp": "2026-04-19T10:14:01Z",
+    "evals_run": [0, 1, 2, 3]
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 27.2,
+        "tokens": 13464,
+        "tool_calls": 4,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Uses exhaustive handling", "passed": true, "evidence": "Record<PaymentStatus, BadgeColor> mapping"},
+        {"text": "No default branch silently swallowing", "passed": true, "evidence": "Record mapping, no switch/default"},
+        {"text": "Uses as const or union type", "passed": true, "evidence": "as const array with derived type"},
+        {"text": "Named export", "passed": true, "evidence": "export function getBadgeColor"}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 14.4,
+        "tokens": 10135,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Uses exhaustive handling", "passed": true, "evidence": "Switch with never check"},
+        {"text": "No default branch silently swallowing", "passed": true, "evidence": "Never check prevents unhandled cases"},
+        {"text": "Uses as const or union type", "passed": true, "evidence": "Explicit union type"},
+        {"text": "Named export", "passed": true, "evidence": "export { getBadgeColor }"}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 32.5,
+        "tokens": 13342,
+        "tool_calls": 4,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Uses Zod or equivalent schema", "passed": true, "evidence": "z.object schema defined"},
+        {"text": "Type derived from schema", "passed": true, "evidence": "z.infer<typeof UserProfileSchema>"},
+        {"text": "Parsing at API boundary", "passed": true, "evidence": "UserProfileSchema.parse(response.data)"},
+        {"text": "Named export", "passed": true, "evidence": "export async function fetchUserProfile"}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.25,
+        "passed": 1,
+        "failed": 3,
+        "total": 4,
+        "time_seconds": 13.8,
+        "tokens": 10043,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Uses Zod or equivalent schema", "passed": false, "evidence": "Hand-written interface, no schema"},
+        {"text": "Type derived from schema", "passed": false, "evidence": "Hand-written User interface"},
+        {"text": "Parsing at API boundary", "passed": false, "evidence": "axios generic get<User>, no runtime validation"},
+        {"text": "Named export", "passed": true, "evidence": "export async function getUserById"}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 64.7,
+        "tokens": 15427,
+        "tool_calls": 5,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Flags every any usage", "passed": true, "evidence": "5 instances flagged"},
+        {"text": "Flags unsafe as cast", "passed": true, "evidence": "Both casts flagged"},
+        {"text": "Flags default export", "passed": true, "evidence": "Issue 1"},
+        {"text": "Flags boolean positional params", "passed": true, "evidence": "Issue 10"},
+        {"text": "Flags non-null assertion", "passed": true, "evidence": "Issue 8"},
+        {"text": "Does NOT flag formatting", "passed": true, "evidence": "No formatting complaints"}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 41.0,
+        "tokens": 11690,
+        "tool_calls": 3,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Flags every any usage", "passed": true, "evidence": "4 instances flagged"},
+        {"text": "Flags unsafe as cast", "passed": true, "evidence": "Both casts flagged"},
+        {"text": "Flags default export", "passed": true, "evidence": "Issue 7"},
+        {"text": "Flags boolean positional params", "passed": true, "evidence": "Issue 6"},
+        {"text": "Flags non-null assertion", "passed": true, "evidence": "Issue 3"},
+        {"text": "Does NOT flag formatting", "passed": true, "evidence": "No formatting complaints"}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 55.8,
+        "tokens": 14678,
+        "tool_calls": 4,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Recommends extraction of data fetching", "passed": true, "evidence": "Custom hook + pure transform function + thin component"},
+        {"text": "Does NOT blindly extract everything", "passed": true, "evidence": "Explicit 'What NOT to do' section with specific criteria"},
+        {"text": "Named exports in new files", "passed": true, "evidence": "All examples use export function"}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.667,
+        "passed": 2,
+        "failed": 1,
+        "total": 3,
+        "time_seconds": 30.7,
+        "tokens": 10909,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Recommends extraction of data fetching", "passed": true, "evidence": "Custom hook + pure transform + thin component"},
+        {"text": "Does NOT blindly extract everything", "passed": true, "evidence": "'What Not To Do' section present"},
+        {"text": "Named exports in new files", "passed": false, "evidence": "Code examples use plain function declarations without export keywords"}
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0},
+      "time_seconds": {"mean": 45.05, "stddev": 17.44, "min": 27.2, "max": 64.7},
+      "tokens": {"mean": 14228, "stddev": 918, "min": 13342, "max": 15427}
+    },
+    "without_skill": {
+      "pass_rate": {"mean": 0.729, "stddev": 0.362, "min": 0.25, "max": 1.0},
+      "time_seconds": {"mean": 24.97, "stddev": 12.77, "min": 13.8, "max": 41.0},
+      "tokens": {"mean": 10694, "stddev": 715, "min": 10043, "max": 11690}
+    },
+    "delta": {
+      "pass_rate": "+0.27",
+      "time_seconds": "+20.1",
+      "tokens": "+3534"
+    }
+  },
+  "notes": []
+}

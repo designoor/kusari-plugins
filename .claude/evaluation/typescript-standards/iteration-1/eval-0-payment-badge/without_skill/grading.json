@@ -1,0 +1,38 @@
+{
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "expectations": [
+    {
+      "text": "Uses exhaustive handling: never check, explicit return type, or Record<Status, string> mapping",
+      "passed": true,
+      "evidence": "Uses switch with never check in default (line 14: const _exhaustive: never = status). Explicit return type string on function."
+    },
+    {
+      "text": "No default branch that silently swallows new cases",
+      "passed": true,
+      "evidence": "Default branch has never check -- new union members cause compile error. Runtime fallback to gray is unreachable if types are correct."
+    },
+    {
+      "text": "Uses as const array with derived type OR explicit union type for statuses",
+      "passed": true,
+      "evidence": "Line 1: type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded'. Explicit union type."
+    },
+    {
+      "text": "Uses named export, not default export",
+      "passed": true,
+      "evidence": "Line 20-21: export { getBadgeColor }; export type { PaymentStatus }. Named exports."
+    }
+  ],
+  "assertion_critique": [
+    "All 4 assertions pass for both with-skill and without-skill. These assertions are non-discriminating for this eval -- the model already knows exhaustive handling patterns.",
+    "Missing assertion: return type should be a specific union (BadgeColor) not string. With-skill returns BadgeColor, without-skill returns string. This is a meaningful quality difference the assertions do not capture."
+  ],
+  "timing": {
+    "total_tokens": 10135,
+    "total_duration_seconds": 14.4
+  }
+}

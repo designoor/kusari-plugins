@@ -1,0 +1,60 @@
+{
+  "skill_name": "typescript-standards",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I need a function that takes a payment status and returns the appropriate badge color for our UI. The statuses are 'pending', 'completed', 'failed', and 'refunded'. Here's what I have so far in src/components/PaymentBadge.tsx but the switch just has a default that returns gray.",
+      "expected_output": "A function using exhaustive case handling (never check, explicit return type, or Record mapping) with no default branch that silently swallows new cases",
+      "assertions": [
+        "Status values defined with as const and type derived via typeof, not a hand-written union",
+        "Return type is a specific union (e.g. BadgeColor), not string",
+        "No runtime default fallback value -- missing cases are compile errors only",
+        "Uses Record<Status, Color> or exhaustive switch with never check",
+        "Uses named export, not default export"
+      ],
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "We're fetching user profiles from /api/users/:id and the response has name, email, role (admin/member/viewer), and an optional phoneNumber. Can you write the API client function in src/services/userService.ts? We're using axios.",
+      "expected_output": "An API client that uses schema validation (Zod or equivalent) at the boundary with types derived from the schema",
+      "assertions": [
+        "Uses Zod or equivalent schema for response parsing",
+        "Type derived from schema (z.infer or equivalent), not a hand-written interface",
+        "Parsing happens at the API boundary function, not deferred to consumers",
+        "Uses named export, not default export"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Can you review this TypeScript file and tell me what to fix?\n\nFile: src/utils/dataProcessor.ts",
+      "expected_output": "Review that flags all type safety violations and structural issues per the standards",
+      "assertions": [
+        "Flags every any usage in the file",
+        "Flags the unsafe as cast",
+        "Flags the default export",
+        "Flags boolean positional parameters",
+        "Flags the non-null assertion (value!)",
+        "Flags the parallel type definition drift (role: string vs literal union)",
+        "Uses the confidence framework: findings categorized as high/moderate/low confidence",
+        "Maps findings to specific standard sections from the skill",
+        "Does NOT flag formatting or import order issues"
+      ],
+      "files": ["src/utils/dataProcessor.ts"]
+    },
+    {
+      "id": 3,
+      "prompt": "I have this React component in src/components/Dashboard.tsx that fetches data, transforms it, and renders a chart all in one 180-line function. The data fetching uses useEffect with a manual fetch call. Should I break this up? If so, how?",
+      "expected_output": "Recommendation to extract data fetching from rendering, with skill-informed type safety guidance applied to the refactoring",
+      "assertions": [
+        "Recommends extraction of data fetching from rendering concern",
+        "Does NOT blindly recommend extracting everything -- applies judgment about when extraction adds unnecessary layers",
+        "Recommends boundary parsing (Zod/schema) for the fetch response rather than a type assertion or generic cast",
+        "Identifies type safety risks in the existing code as part of the refactoring rationale, not just structural concerns",
+        "Any new files or functions use named exports"
+      ],
+      "files": []
+    }
+  ]
+}

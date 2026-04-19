@@ -1,0 +1,34 @@
+{
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "expectations": [
+    {
+      "text": "Uses exhaustive handling: never check, explicit return type, or Record<Status, string> mapping",
+      "passed": true,
+      "evidence": "Uses Record<PaymentStatus, BadgeColor> mapping (line 6). Compiler forces every key to be present."
+    },
+    {
+      "text": "No default branch that silently swallows new cases",
+      "passed": true,
+      "evidence": "Record mapping has no default -- missing keys are compile errors. No switch statement at all."
+    },
+    {
+      "text": "Uses as const array with derived type OR explicit union type for statuses",
+      "passed": true,
+      "evidence": "Line 1: const paymentStatuses = [...] as const; Line 2: type PaymentStatus = (typeof paymentStatuses)[number]. Single source of truth."
+    },
+    {
+      "text": "Uses named export, not default export",
+      "passed": true,
+      "evidence": "Line 13: export function getBadgeColor. No default export."
+    }
+  ],
+  "timing": {
+    "total_tokens": 13464,
+    "total_duration_seconds": 27.2
+  }
+}

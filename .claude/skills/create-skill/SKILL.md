@@ -29,12 +29,13 @@ Read `$ARGUMENTS` if provided. If the user gave a description of what they want,
 
 > What should this skill help with? Describe the task, domain, or workflow it should cover.
 
-From the user's response, extract:
+From the response, extract:
 - **Domain** -- what subject or task area does this cover?
 - **Trigger conditions** -- when should this skill activate?
 - **Output** -- what does the skill produce? (files, plans, code, decisions, knowledge)
 - **Duration** -- single-turn task or multi-phase workflow?
 - **Agent needs** -- does this require parallel research, review, or orchestration?
+- **Invocation model** -- user-invoked only, model-invoked only, or both?
 
 ## Phase 1: Classify and Confirm
 
@@ -46,36 +47,23 @@ Classify the skill into one of three types based on the extracted intent:
 
 Signals: the skill is about a file format, API, library, framework, creative medium, or technical domain. The output is a generated artifact (file, code, document). The task completes in a single model turn. No sub-agent coordination needed.
 
-Examples from analysis: docx, pdf, xlsx, pptx, claude-api, algorithmic-art, andrew-kane-gem-writer.
+Examples: docx, pdf, xlsx, pptx, claude-api, algorithmic-art, andrew-kane-gem-writer.
 
 **Process skill** -- defines a multi-step workflow the model follows. The user brings the problem; the skill brings the procedure. The model's judgment is constrained to documented decision points within each phase.
 
 Signals: the task spans multiple phases with intermediate outputs. The skill needs conditional branching, agent dispatch, or user interaction gates. The output is a decision, plan, diagnosis, or knowledge capture. Wrong output is subtle (missed root cause, incomplete plan) rather than visually obvious.
 
-Examples from analysis: ce-debug, ce-plan, ce-brainstorm, ce-compound, ce-compound-refresh, ce-ideate.
+Examples: ce-debug, ce-plan, ce-brainstorm, ce-compound, ce-compound-refresh, ce-ideate.
 
 **Hybrid skill** -- combines domain knowledge with a structured workflow. Part of the skill is reference material; part is a phased procedure.
 
 Signals: the skill teaches a domain AND defines how to apply it step by step. The reference sections are consulted during specific workflow phases.
 
-Examples from analysis: skill-creator (teaches skill writing + defines create-eval-improve workflow), mcp-builder (teaches MCP protocol + defines 4-phase build process).
+Examples: skill-creator (teaches skill writing + defines create-eval-improve workflow), mcp-builder (teaches MCP protocol + defines 4-phase build process).
 
-### 1.2 Present Classification
+### 1.2 Determine Structural Parameters
 
-Present the classification to the user in one sentence:
-
-> This is a [type] skill -- [one-line explanation of why]. [One-line implication for structure.]
-
-Examples:
-- "This is a capability skill -- it teaches the model how to work with GraphQL schemas. The structure will be a flat reference with code examples organized by task type."
-- "This is a process skill -- it defines a debugging workflow with investigation, diagnosis, and fix phases. The structure will use numbered phases with conditional gates."
-- "This is a hybrid skill -- it teaches Terraform patterns AND defines a plan-apply-verify workflow. Reference sections will feed into specific workflow phases."
-
-Wait for the user to confirm or correct before proceeding.
-
-### 1.3 Determine Structural Parameters
-
-Based on the confirmed type, set these parameters silently (do not present them as choices):
+Based on the skill type, set these parameters silently (do not present them as choices):
 
 **Capability skill defaults:**
 - Document structure: flat H2/H3, random-access sections
@@ -102,33 +90,92 @@ Based on the confirmed type, set these parameters silently (do not present them 
 - File split: reference material in references/, workflow in SKILL.md
 - Agent integration: conditional per workflow phase
 
+### 1.3 Present Classification
+
+Present the classification to the user in this format:
+
+> **Type:** [Capability/Process/Hybrid] -- [one-line explanation of why]
+> **Structure:** [one-line implication for document organization]
+> **Invocation:** [user-only / model-only / both] -- [reason]
+> **Execution:** [inline / subagent (`context: fork`)] -- [reason]
+
+Examples:
+- "**Type:** Capability -- it teaches the model how to work with GraphQL schemas. **Structure:** flat reference with code examples organized by task type."
+- "**Type:** Process -- it defines a debugging workflow with investigation, diagnosis, and fix phases. **Structure:** numbered phases with conditional gates."
+- "**Type:** Hybrid -- it teaches Terraform patterns AND defines a plan-apply-verify workflow. **Structure:** reference sections feed into specific workflow phases."
+
+Wait for the user to confirm or correct before proceeding.
+
 ## Phase 2: Design the Skill
 
 ### 2.1 Frontmatter
 
-Draft the YAML frontmatter. Required fields:
+Draft the YAML frontmatter. Only `name` is required. `description` is strongly recommended.
 
-```yaml
----
-name: <skill-name>
-description: <trigger description>
----
-```
+#### Core fields
 
-**Name:** lowercase kebab-case or colon-namespaced (`ce:plan`, `create-skill`). Match the directory name.
+| Field | Type | Default | Purpose |
+|---|---|---|---|
+| `name` | String | Directory name | Display name and `/slash-command`. Lowercase letters, numbers, hyphens. Max 64 chars. Match the directory name. |
+| `description` | String | First paragraph of content | What the skill does and when to use it. Front-load the key use case. Combined with `when_to_use`, truncated at 1,536 characters in the skill listing. |
+| `when_to_use` | String | None | Additional trigger context appended to `description`. Counts toward the 1,536-char cap. Use for trigger phrases that don't fit naturally in the description. |
+| `argument-hint` | String | None | Hint shown during autocomplete. Example: `[issue-number]` or `[filename] [format]`. |
 
-**Description:** This is the primary trigger surface. Quality rules:
+#### Invocation control
+
+| Field | Type | Default | Purpose |
+|---|---|---|---|
+| `disable-model-invocation` | Boolean | `false` | Prevent Claude from auto-loading. Use for workflows with side effects (deploy, commit, send-message). Removes description from context entirely. |
+| `user-invocable` | Boolean | `true` | Set `false` to hide from `/` menu. Use for background knowledge the model should apply automatically but users should not invoke directly. |
+
+How these interact:
+
+| Frontmatter | User can invoke | Claude can invoke | Context behavior |
+|---|---|---|---|
+| (default) | Yes | Yes | Description always loaded, full skill loads on invocation |
+| `disable-model-invocation: true` | Yes | No | Description not in context |
+| `user-invocable: false` | No | Yes | Description always loaded |
+
+#### Execution fields
+
+| Field | Type | Default | Purpose |
+|---|---|---|---|
+| `model` | String | Inherits session | Model override when skill is active |
+| `effort` | String | Inherits session | Thinking effort: `low`, `medium`, `high`, `xhigh`, `max` |
+| `context` | String | None | Set to `fork` to run in an isolated subagent context |
+| `agent` | String | `general-purpose` | Subagent type when `context: fork`. Built-in (`Explore`, `Plan`) or custom agent name |
+| `allowed-tools` | String/List | None | Pre-approve tools while skill is active. Space-separated or YAML list. Does not restrict -- only grants without prompting |
+| `paths` | String/List | None | Glob patterns limiting automatic activation to matching files |
+| `hooks` | Object | None | Lifecycle hooks scoped to this skill |
+| `shell` | String | `bash` | Shell for inline commands (`bash` or `powershell`) |
+
+### 2.2 Description Design
+
+The description is the primary activation surface. Quality rules:
+
 - Start with what the skill does, not what it is
+- Front-load the key use case -- combined `description` + `when_to_use` is truncated at 1,536 chars
 - Include 3-5 explicit trigger phrases ("Use when the user says...")
 - For complex skills, include negative triggers ("Do NOT use when...")
 - Length guidance: 200-400 chars for focused skills, 400-700 chars for broad skills
 - Longer descriptions correlate with more precise routing -- do not compress for brevity
 
-**Optional fields** (add only when needed):
-- `argument-hint: "[what to pass]"` -- when the skill accepts arguments
-- `disable-model-invocation: true` -- when the skill performs destructive operations or is orchestration-only
+**Capability skill description formula:**
 
-### 2.2 Section Design
+> Use this skill whenever the user wants to [primary action] with [domain]. This includes [list of 5-10 specific sub-tasks]. Also use when [secondary triggers]. Do NOT use for [explicit exclusions].
+
+**Process skill description formula:**
+
+> [Primary action verb] [what]. Use when [3-5 trigger conditions with example phrases]. Also use when [secondary conditions]. For [redirects], prefer [other skill] first.
+
+Use `when_to_use` for overflow trigger phrases that don't fit naturally in `description`:
+
+```yaml
+description: "Generate interactive HTML visualizations of codebase structure"
+when_to_use: "Use when exploring a new repo, understanding project structure, or when the user says 'visualize', 'show me the structure', or 'codebase map'"
+```
+
+### 2.3 Section Design
 
 Based on the skill type and the user's described requirements, design the section outline.
 
@@ -138,9 +185,11 @@ Based on the skill type and the user's described requirements, design the sectio
 
 **For hybrid skills**, combine both: reference sections first (flat), then workflow section (phased). Apply the relevant patterns from both reference files.
 
+If the skill uses arguments, shell injection, subagent execution, or scoped activation, read `references/advanced-patterns.md` for string substitution variables, dynamic context injection syntax, and execution patterns.
+
 Present the proposed section outline to the user. One level of headings only -- do not expand sub-sections yet. Ask if the coverage matches their intent.
 
-### 2.3 Specificity Calibration
+### 2.4 Specificity Calibration
 
 For each major section in the outline, determine the right specificity approach:
 
@@ -154,14 +203,35 @@ For each major section in the outline, determine the right specificity approach:
 | Output format | Fenced template blocks with placeholders | Debug summary template with named fields |
 | Conditional behavior | Bold-labeled branches or decision tables | "**Lightweight:** skip Phase 3. **Standard:** run Phase 3." |
 
-### 2.4 Context Budget
+### 2.5 Context Budget and Lifecycle
 
-Estimate the token cost of the proposed outline. Rules:
-- SKILL.md target: under 3,000 tokens for capability skills, under 6,000 for process skills
-- If the estimate exceeds the target, identify sections that are conditionally needed and move them to references/
+Estimate the token cost of the proposed outline.
+
+**Token targets:**
+- Capability skills: SKILL.md under 3,000 tokens
+- Process skills: SKILL.md under 6,000 tokens
+- All skills: SKILL.md under 500 lines
+
+**Split to references/ when:**
+- Content exceeds the target
+- Content is conditionally needed (only some invocations use it)
 - Each reference file must have a clear load condition ("Read this file when X")
-- For process skills, enforce lazy-loading: "Do not load this file before Phase N completes"
-- For capability skills, use implicit loading: "For advanced features, see references/advanced.md"
+
+**Lazy-loading enforcement:**
+- For process skills: "Do not load this file before Phase N completes"
+- For capability skills: "For advanced features, see references/advanced.md"
+
+**Lifecycle awareness:**
+
+Skill content enters the conversation as a single message and stays for the session. After auto-compaction:
+- The first 5,000 tokens of each invoked skill are re-attached
+- Combined re-attachment budget across all skills is 25,000 tokens
+- Most recently invoked skills get priority
+
+Design implications:
+- Put the most critical instructions (constraints, output formats) in the first 5,000 tokens of SKILL.md
+- Write guidance that should apply throughout a task as **standing instructions**, not one-time steps -- standing instructions survive compaction better
+- Move large reference material to separate files so it does not consume the re-attachment budget
 
 ## Phase 3: Write the Content
 
@@ -208,6 +278,14 @@ Constraints are the most important content in any skill. Rules for writing them:
     <template>.md
 ```
 
+Reference bundled scripts and assets from SKILL.md using `${CLAUDE_SKILL_DIR}` for portable paths:
+
+```bash
+python ${CLAUDE_SKILL_DIR}/scripts/validate.py $ARGUMENTS
+```
+
+This resolves to the skill's directory regardless of the user's working directory. For plugin skills, it points to the skill's subdirectory within the plugin, not the plugin root.
+
 ### 4.2 Write SKILL.md
 
 Write the complete SKILL.md incorporating all content from Phase 3.
@@ -222,12 +300,26 @@ For each reference file identified in Phase 2.4, write the content. Each referen
 
 ### 4.4 Final Verification
 
-Before presenting the result:
-- Verify every file path in SKILL.md resolves to a file in the skill directory
-- Verify SKILL.md token count is within the budget from Phase 2.4
-- Verify the description field contains sufficient trigger phrases
-- For process skills: verify every phase has entry/exit conditions
-- For capability skills: verify every major section has at least one code example or concrete reference
-- Read the SKILL.md from top to bottom as if encountering it for the first time -- does the structure make sense without prior context?
+Before presenting the result, verify:
+
+| Check | Required for |
+|---|---|
+| Description starts with what the skill does, not what it is | All skills |
+| Description + `when_to_use` combined under 1,536 chars | All skills |
+| Description includes 3-5 trigger phrases | All skills |
+| Complex skills include negative triggers ("Do NOT use when...") | Broad skills |
+| Every file path in SKILL.md resolves to an existing file | All skills |
+| SKILL.md token count within budget (3K capability, 6K process) | All skills |
+| SKILL.md under 500 lines | All skills |
+| Critical instructions in the first 5,000 tokens | All skills |
+| Every phase has entry/exit conditions | Process skills |
+| Every major section has at least one code example or concrete reference | Capability skills |
+| Reference sections use flat H2/H3 structure | Hybrid skills |
+| Workflow sections use phased H3/H4 structure | Hybrid skills |
+| `disable-model-invocation: true` set for side-effect workflows | Destructive skills |
+| `allowed-tools` lists tools needed without per-use prompts | Skills using Bash/Write |
+| `paths` set when activation should be file-pattern-scoped | Scoped skills |
+
+Read the SKILL.md from top to bottom as if encountering it for the first time -- does the structure make sense without prior context?
 
 Present the complete file listing and ask the user to review.

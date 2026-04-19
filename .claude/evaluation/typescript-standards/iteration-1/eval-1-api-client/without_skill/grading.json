@@ -1,0 +1,34 @@
+{
+  "summary": {
+    "passed": 1,
+    "failed": 3,
+    "total": 4,
+    "pass_rate": 0.25
+  },
+  "expectations": [
+    {
+      "text": "Uses Zod or equivalent schema for response parsing",
+      "passed": false,
+      "evidence": "No schema library used. Hand-written User interface (lines 5-10). No runtime validation of API response."
+    },
+    {
+      "text": "Type derived from schema (z.infer or equivalent), not a hand-written interface",
+      "passed": false,
+      "evidence": "Line 5: interface User { ... } is hand-written. No schema to derive from."
+    },
+    {
+      "text": "Parsing happens at the API boundary function, not deferred to consumers",
+      "passed": false,
+      "evidence": "Line 17: apiClient.get<User>('/users/${id}') uses axios generic which is a compile-time-only assertion. No runtime parsing. response.data is trusted as User without validation."
+    },
+    {
+      "text": "Uses named export, not default export",
+      "passed": true,
+      "evidence": "Line 16: export async function getUserById. Named export."
+    }
+  ],
+  "timing": {
+    "total_tokens": 10043,
+    "total_duration_seconds": 13.8
+  }
+}

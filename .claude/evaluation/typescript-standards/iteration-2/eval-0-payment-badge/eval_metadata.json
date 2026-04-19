@@ -1,0 +1,14 @@
+{
+  "eval_id": 0,
+  "eval_name": "payment-badge-exhaustive-handling",
+  "model": "sonnet",
+  "timestamp": "2026-04-19T11:00:00Z",
+  "prompt": "I need a function that takes a payment status and returns the appropriate badge color for our UI. The statuses are 'pending', 'completed', 'failed', and 'refunded'. Here's what I have so far in src/components/PaymentBadge.tsx but the switch just has a default that returns gray.",
+  "assertions": [
+    "Status values defined with as const and type derived via typeof, not a hand-written union",
+    "Return type is a specific union (e.g. BadgeColor), not string",
+    "No runtime default fallback value -- missing cases are compile errors only",
+    "Uses Record<Status, Color> or exhaustive switch with never check",
+    "Uses named export, not default export"
+  ]
+}

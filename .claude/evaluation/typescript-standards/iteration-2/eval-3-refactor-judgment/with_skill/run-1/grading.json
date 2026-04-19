@@ -1,0 +1,32 @@
+{
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "pass_rate": 1.0
+  },
+  "expectations": [
+    {
+      "text": "Recommends extraction of data fetching from rendering concern",
+      "passed": true,
+      "evidence": "Explicitly recommends extracting a useDashboardData hook to own the fetch/async state, and separating it from the Dashboard component which becomes a coordinator for rendering."
+    },
+    {
+      "text": "Does NOT blindly recommend extracting everything -- applies judgment about when extraction adds unnecessary layers",
+      "passed": true,
+      "evidence": "Under 'What not to extract': 'Sub-components that are trivial JSX with no independent reuse. If LoadingState and ErrorState are one-liners, keep them inline. Extraction that adds a layer without reducing complexity is not an improvement.'"
+    },
+    {
+      "text": "Any new files or functions use named exports",
+      "passed": true,
+      "evidence": "Explicit statement: 'Named exports only on all extracted modules. No default exports.' All four proposed files are listed with the rule applied."
+    }
+  ],
+  "assertion_critique": [
+    "All three assertions are satisfied. The output applies extraction where structural complexity justifies it and explicitly withholds extraction for trivial JSX."
+  ],
+  "timing": {
+    "total_tokens": 14852,
+    "total_duration_seconds": 61.1
+  }
+}

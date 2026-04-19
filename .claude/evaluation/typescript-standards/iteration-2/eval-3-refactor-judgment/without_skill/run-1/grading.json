@@ -1,0 +1,32 @@
+{
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "pass_rate": 1.0
+  },
+  "expectations": [
+    {
+      "text": "Recommends extraction of data fetching from rendering concern",
+      "passed": true,
+      "evidence": "Section 1 explicitly recommends extracting the useEffect + fetch call into a dedicated hook (useDashboardData). Section 3 extracts chart rendering into a presentational component (DashboardChart)."
+    },
+    {
+      "text": "Does NOT blindly recommend extracting everything -- applies judgment about when extraction adds unnecessary layers",
+      "passed": true,
+      "evidence": "Two instances of restraint: (1) prioritization section advises doing the hook extraction first and notes the rest follow naturally; (2) React Query/SWR section explicitly states do not add a data-fetching library solely for this component."
+    },
+    {
+      "text": "Any new files or functions use named exports",
+      "passed": true,
+      "evidence": "All four constructs use named exports: export function useDashboardData, export function transformDashboardData, export function DashboardChart, export function Dashboard. No default exports anywhere."
+    }
+  ],
+  "assertion_critique": [
+    "All 3 assertions pass without the skill -- eval 3 remains non-discriminating for refactoring judgment"
+  ],
+  "timing": {
+    "total_tokens": 11329,
+    "total_duration_seconds": 26.8
+  }
+}

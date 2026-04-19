@@ -1,0 +1,48 @@
+{
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "expectations": [
+    {
+      "text": "Flags every any usage in the file",
+      "passed": true,
+      "evidence": "Issue 1 flags all four any locations: data param, result variable, getConfig return, formatUser param."
+    },
+    {
+      "text": "Flags the unsafe as cast",
+      "passed": true,
+      "evidence": "Issue 2: flags both 'data as UserData' (line 16) and 'user.role as ...' (line 40) as hollow casts."
+    },
+    {
+      "text": "Flags the default export",
+      "passed": true,
+      "evidence": "Issue 7: 'Default export of a named function. Default exports make auto-imports less predictable.'"
+    },
+    {
+      "text": "Flags boolean positional parameters",
+      "passed": true,
+      "evidence": "Issue 6: 'Two boolean parameters create four behavioral permutations. Callers cannot understand the function's behavior.' Recommends options object."
+    },
+    {
+      "text": "Flags the non-null assertion (value!)",
+      "passed": true,
+      "evidence": "Issue 3: 'The ! operator suppresses TypeScript's null check. config will frequently lack a settings property entirely.'"
+    },
+    {
+      "text": "Does NOT flag formatting or import order issues",
+      "passed": true,
+      "evidence": "No formatting, indentation, or import order complaints in the review."
+    }
+  ],
+  "assertion_critique": [
+    "All 6 assertions pass for both with-skill and without-skill. The code review assertions are non-discriminating -- the model catches these violations without the skill.",
+    "Qualitative difference not captured: with-skill maps each finding to specific standard sections, uses the skill's confidence framework (high/moderate), and identifies the parallel type definition drift. Without-skill is less structured."
+  ],
+  "timing": {
+    "total_tokens": 11690,
+    "total_duration_seconds": 41.0
+  }
+}

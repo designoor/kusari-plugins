@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>__SKILL_NAME__ - Eval Report - Iteration __ITERATION__</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface-2: #242836;
+    --border: #2e3345;
+    --text: #e0e4f0;
+    --text-dim: #8890a8;
+    --pass: #2dd4a0;
+    --pass-bg: #0d3d2e;
+    --fail: #f44060;
+    --fail-bg: #3d0d1a;
+    --accent: #4cc9f0;
+    --accent-dim: #1a3a4a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  .subtitle { color: var(--text-dim); margin-bottom: 24px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 2px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .tab { padding: 10px 20px; cursor: pointer; color: var(--text-dim); border-bottom: 2px solid transparent; transition: all 0.15s; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Benchmark table */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--surface); color: var(--text-dim); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  td { background: var(--surface-2); }
+
+  /* Eval cards */
+  .eval-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .eval-nav button { padding: 6px 16px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); border-radius: 4px; cursor: pointer; }
+  .eval-nav button:hover { background: var(--border); }
+  .eval-nav button:disabled { opacity: 0.3; cursor: default; }
+  .eval-counter { color: var(--text-dim); font-size: 0.9rem; }
+  .eval-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .eval-card h3 { font-size: 1.1rem; margin-bottom: 12px; }
+  .eval-prompt { background: var(--surface-2); padding: 12px; border-radius: 4px; margin-bottom: 16px; font-style: italic; color: var(--text-dim); white-space: pre-wrap; }
+
+  /* Assertions */
+  .assertion { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; margin: 4px 0; border-radius: 4px; }
+  .assertion.pass { background: var(--pass-bg); }
+  .assertion.fail { background: var(--fail-bg); }
+  .assertion-icon { font-weight: bold; min-width: 20px; }
+  .assertion.pass .assertion-icon { color: var(--pass); }
+  .assertion.fail .assertion-icon { color: var(--fail); }
+  .assertion-text { font-weight: 500; }
+  .assertion-evidence { color: var(--text-dim); font-size: 0.85rem; margin-top: 2px; }
+
+  /* Configs (with_skill / without_skill) */
+  .config-section { margin: 16px 0; }
+  .config-label { font-weight: 600; color: var(--accent); margin-bottom: 8px; font-size: 0.95rem; }
+
+  /* Feedback */
+  .feedback-section { margin-top: 16px; }
+  .feedback-section label { display: block; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 4px; }
+  .feedback-section textarea { width: 100%; min-height: 80px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); border-radius: 4px; padding: 10px; font-family: inherit; font-size: 0.9rem; resize: vertical; }
+  .feedback-section textarea:focus { outline: none; border-color: var(--accent); }
+
+  /* Summary cards */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .summary-card .label { color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .summary-card .value { font-size: 1.8rem; font-weight: 700; margin-top: 4px; }
+  .summary-card .detail { color: var(--text-dim); font-size: 0.85rem; margin-top: 2px; }
+  .delta-positive { color: var(--pass); }
+  .delta-negative { color: var(--fail); }
+
+  /* Observations */
+  .observation { background: var(--surface-2); padding: 10px 14px; border-left: 3px solid var(--accent); margin: 8px 0; border-radius: 0 4px 4px 0; }
+
+  /* Actions */
+  .actions { display: flex; gap: 12px; margin-top: 24px; }
+  .actions button { padding: 10px 24px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+  .btn-primary { background: var(--accent); color: var(--bg); }
+  .btn-primary:hover { opacity: 0.9; }
+
+  /* Keyboard hint */
+  .kbd-hint { color: var(--text-dim); font-size: 0.8rem; margin-top: 8px; }
+
+  /* Outputs listing */
+  .output-files { margin: 8px 0; }
+  .output-file { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--surface-2); border-radius: 4px; margin: 4px 0; color: var(--text-dim); font-family: monospace; font-size: 0.85rem; }
+
+  /* Timing */
+  .timing-row { display: flex; gap: 24px; color: var(--text-dim); font-size: 0.85rem; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>__SKILL_NAME__</h1>
+  <p class="subtitle">Eval Report - Iteration __ITERATION__</p>
+  <p class="subtitle" id="meta-line"></p>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('outputs')">Outputs</div>
+    <div class="tab" onclick="switchTab('benchmark')">Benchmark</div>
+    <div class="tab" onclick="switchTab('analysis')">Analysis</div>
+  </div>
+
+  <!-- OUTPUTS TAB -->
+  <div id="tab-outputs" class="tab-content active">
+    <div class="eval-nav">
+      <button onclick="prevEval()" id="btn-prev">Prev</button>
+      <span class="eval-counter" id="eval-counter"></span>
+      <button onclick="nextEval()" id="btn-next">Next</button>
+    </div>
+    <div id="eval-display"></div>
+    <p class="kbd-hint">Arrow keys: navigate between evals</p>
+  </div>
+
+  <!-- BENCHMARK TAB -->
+  <div id="tab-benchmark" class="tab-content">
+    <div id="benchmark-display"></div>
+  </div>
+
+  <!-- ANALYSIS TAB -->
+  <div id="tab-analysis" class="tab-content">
+    <div id="analysis-display"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-primary" onclick="exportFeedback()">Export Feedback</button>
+  </div>
+</div>
+
+<script>
+// Data injected by the skill
+const REPORT_DATA = __REPORT_DATA__;
+
+let currentEvalIndex = 0;
+const feedbackStore = {};
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function renderEval(index) {
+  const evals = REPORT_DATA.evals || [];
+  if (!evals.length) {
+    document.getElementById('eval-display').innerHTML = '<p>No eval data available.</p>';
+    return;
+  }
+  const ev = evals[index];
+  document.getElementById('eval-counter').textContent = `${index + 1} / ${evals.length}`;
+  document.getElementById('btn-prev').disabled = index === 0;
+  document.getElementById('btn-next').disabled = index === evals.length - 1;
+
+  let html = `<div class="eval-card">
+    <h3>${escHtml(ev.eval_name || 'Eval ' + ev.eval_id)}</h3>
+    <div class="eval-prompt">${escHtml(ev.prompt)}</div>`;
+
+  // Render each configuration's results
+  const configs = ev.configs || [];
+  for (const cfg of configs) {
+    html += `<div class="config-section">
+      <div class="config-label">${escHtml(cfg.config_name)}</div>`;
+
+    // Output files
+    if (cfg.output_files && cfg.output_files.length) {
+      html += '<div class="output-files">';
+      for (const f of cfg.output_files) {
+        html += `<div class="output-file">${escHtml(f)}</div>`;
+      }
+      html += '</div>';
+    }
+
+    // Timing
+    if (cfg.timing) {
+      html += `<div class="timing-row">
+        <span>Tokens: ${cfg.timing.total_tokens || '?'}</span>
+        <span>Duration: ${cfg.timing.total_duration_seconds ? cfg.timing.total_duration_seconds.toFixed(1) + 's' : '?'}</span>
+      </div>`;
+    }
+
+    // Assertions
+    if (cfg.expectations && cfg.expectations.length) {
+      html += '<div style="margin-top:12px">';
+      for (const exp of cfg.expectations) {
+        const cls = exp.passed ? 'pass' : 'fail';
+        const icon = exp.passed ? 'P' : 'F';
+        html += `<div class="assertion ${cls}">
+          <span class="assertion-icon">${icon}</span>
+          <div>
+            <div class="assertion-text">${escHtml(exp.text)}</div>
+            <div class="assertion-evidence">${escHtml(exp.evidence || '')}</div>
+          </div>
+        </div>`;
+      }
+      html += '</div>';
+    }
+
+    html += '</div>';
+  }
+
+  // Feedback
+  const savedFeedback = feedbackStore[ev.eval_id] || '';
+  html += `<div class="feedback-section">
+    <label>Feedback for this eval:</label>
+    <textarea id="feedback-${ev.eval_id}" oninput="saveFeedback(${ev.eval_id})">${escHtml(savedFeedback)}</textarea>
+  </div>`;
+
+  html += '</div>';
+  document.getElementById('eval-display').innerHTML = html;
+}
+
+function saveFeedback(evalId) {
+  const el = document.getElementById('feedback-' + evalId);
+  if (el) feedbackStore[evalId] = el.value;
+}
+
+function prevEval() {
+  if (currentEvalIndex > 0) { currentEvalIndex--; renderEval(currentEvalIndex); }
+}
+
+function nextEval() {
+  const evals = REPORT_DATA.evals || [];
+  if (currentEvalIndex < evals.length - 1) { currentEvalIndex++; renderEval(currentEvalIndex); }
+}
+
+function renderBenchmark() {
+  const bm = REPORT_DATA.benchmark || {};
+  const summary = bm.run_summary || {};
+  const configs = Object.keys(summary).filter(k => k !== 'delta');
+  const delta = summary.delta || {};
+
+  let html = '<div class="summary-grid">';
+
+  // Summary cards
+  for (const cfg of configs) {
+    const pr = summary[cfg]?.pass_rate || {};
+    const label = cfg.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    html += `<div class="summary-card">
+      <div class="label">${escHtml(label)} Pass Rate</div>
+      <div class="value">${(pr.mean * 100).toFixed(0)}%</div>
+      <div class="detail">+/- ${(pr.stddev * 100).toFixed(0)}% (${pr.min !== undefined ? (pr.min * 100).toFixed(0) : '?'}% - ${pr.max !== undefined ? (pr.max * 100).toFixed(0) : '?'}%)</div>
+    </div>`;
+  }
+
+  if (delta.pass_rate) {
+    const val = parseFloat(delta.pass_rate);
+    const cls = val >= 0 ? 'delta-positive' : 'delta-negative';
+    html += `<div class="summary-card">
+      <div class="label">Delta Pass Rate</div>
+      <div class="value ${cls}">${delta.pass_rate}</div>
+    </div>`;
+  }
+  html += '</div>';
+
+  // Full table
+  if (configs.length) {
+    html += '<table><thead><tr><th>Metric</th>';
+    for (const cfg of configs) {
+      html += `<th>${escHtml(cfg.replace(/_/g, ' '))}</th>`;
+    }
+    html += '<th>Delta</th></tr></thead><tbody>';
+
+    for (const metric of ['pass_rate', 'time_seconds', 'tokens']) {
+      html += `<tr><td>${metric.replace(/_/g, ' ')}</td>`;
+      for (const cfg of configs) {
+        const s = summary[cfg]?.[metric] || {};
+        const fmt = metric === 'pass_rate'
+          ? `${(s.mean * 100).toFixed(0)}% +/- ${(s.stddev * 100).toFixed(0)}%`
+          : metric === 'time_seconds'
+          ? `${s.mean?.toFixed(1) || 0}s +/- ${s.stddev?.toFixed(1) || 0}s`
+          : `${Math.round(s.mean || 0)} +/- ${Math.round(s.stddev || 0)}`;
+        html += `<td>${fmt}</td>`;
+      }
+      html += `<td>${delta[metric] || '--'}</td></tr>`;
+    }
+    html += '</tbody></table>';
+  }
+
+  // Per-run breakdown
+  const runs = bm.runs || [];
+  if (runs.length) {
+    html += '<h3 style="margin-top:24px;margin-bottom:12px">Per-Run Results</h3>';
+    html += '<table><thead><tr><th>Eval</th><th>Config</th><th>Run</th><th>Pass Rate</th><th>Time</th><th>Tokens</th></tr></thead><tbody>';
+    for (const r of runs) {
+      html += `<tr>
+        <td>${r.eval_id}</td>
+        <td>${escHtml(r.configuration)}</td>
+        <td>${r.run_number}</td>
+        <td>${(r.result.pass_rate * 100).toFixed(0)}%</td>
+        <td>${r.result.time_seconds?.toFixed(1) || '?'}s</td>
+        <td>${r.result.tokens || '?'}</td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+  }
+
+  document.getElementById('benchmark-display').innerHTML = html;
+}
+
+function renderAnalysis() {
+  const analysis = REPORT_DATA.analysis || {};
+  const patterns = analysis.patterns || [];
+  const observations = analysis.observations || [];
+
+  let html = '';
+
+  if (patterns.length) {
+    html += '<h3 style="margin-bottom:12px">Patterns</h3>';
+    for (const p of patterns) {
+      const cls = p.type === 'always_pass' ? 'pass' : 'fail';
+      html += `<div class="assertion ${cls}" style="margin-bottom:8px">
+        <div>
+          <div class="assertion-text">${escHtml(p.type)}: ${escHtml(p.assertion || '')}</div>
+          <div class="assertion-evidence">${escHtml(p.detail || '')}</div>
+          <div class="assertion-evidence" style="margin-top:4px"><strong>Suggestion:</strong> ${escHtml(p.suggestion || '')}</div>
+        </div>
+      </div>`;
+    }
+  }
+
+  if (observations.length) {
+    html += '<h3 style="margin-top:24px;margin-bottom:12px">Observations</h3>';
+    for (const obs of observations) {
+      html += `<div class="observation">${escHtml(obs)}</div>`;
+    }
+  }
+
+  if (!patterns.length && !observations.length) {
+    html += '<p style="color:var(--text-dim)">No analysis data available.</p>';
+  }
+
+  document.getElementById('analysis-display').innerHTML = html;
+}
+
+function exportFeedback() {
+  const evals = REPORT_DATA.evals || [];
+  const reviews = evals.map(ev => ({
+    eval_id: ev.eval_id,
+    eval_name: ev.eval_name || 'eval-' + ev.eval_id,
+    feedback: feedbackStore[ev.eval_id] || '',
+    timestamp: new Date().toISOString()
+  }));
+  const data = { reviews, status: 'complete' };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'feedback.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function escHtml(s) {
+  if (typeof s !== 'string') return '';
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowLeft') prevEval();
+  if (e.key === 'ArrowRight') nextEval();
+});
+
+// Render metadata line
+const meta = REPORT_DATA.metadata || {};
+if (meta.model || meta.timestamp) {
+  const parts = [];
+  if (meta.model) parts.push('Model: ' + meta.model);
+  if (meta.timestamp) parts.push('Run: ' + meta.timestamp);
+  document.getElementById('meta-line').textContent = parts.join('  |  ');
+}
+
+// Init
+renderEval(0);
+renderBenchmark();
+renderAnalysis();
+</script>
+</body>
+</html>

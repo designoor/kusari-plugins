@@ -1,0 +1,39 @@
+{
+  "patterns": [
+    {
+      "type": "always_pass",
+      "assertion": "Exhaustive handling (Eval 0)",
+      "detail": "All 4 assertions pass for both with_skill and without_skill. The model already knows exhaustive handling patterns (never check, Record mapping, explicit return types) without the skill.",
+      "suggestion": "These assertions are non-discriminating. Add an assertion that checks for as const derived types specifically, or that the return type is a specific union rather than string.",
+      "category": "assertions"
+    },
+    {
+      "type": "always_pass",
+      "assertion": "Code review violation detection (Eval 2)",
+      "detail": "All 6 assertions pass for both configurations. The model catches any, unsafe casts, default exports, boolean params, and non-null assertions without the skill loaded.",
+      "suggestion": "These assertions test baseline model capability, not skill value-add. Add assertions that check for skill-specific behaviors: confidence framework (high/moderate/low), mapping findings to specific standards, flagging parallel type definitions.",
+      "category": "assertions"
+    },
+    {
+      "type": "systemic_failure",
+      "assertion": "Boundary parsing (Eval 1 without_skill)",
+      "detail": "3 of 4 assertions fail in without_skill. The model does not use schema validation at API boundaries unless instructed. This is the strongest evidence of capability uplift from the skill.",
+      "suggestion": "This is the skill working as intended. The boundary parsing standard is encoded preference that the model does not follow by default.",
+      "category": "instructions"
+    },
+    {
+      "type": "qualitative_gap",
+      "assertion": "Named exports in recommendations (Eval 3)",
+      "detail": "With-skill code examples consistently use export function. Without-skill omits export keywords entirely. Minor but demonstrates the skill's named-export standard propagating into advisory output.",
+      "suggestion": "No change needed. This shows the skill influences code examples in non-code-generation contexts.",
+      "category": "instructions"
+    }
+  ],
+  "observations": [
+    "With-skill pass rate is 100% across all 4 evals (17/17 assertions). Without-skill is 72.9% (13/17 assertions).",
+    "The skill's strongest value-add is in Eval 1 (boundary parsing): 4/4 with-skill vs 1/4 without-skill. This is genuinely a capability the model does not apply by default.",
+    "Evals 0 and 2 are non-discriminating: the model passes all assertions without the skill. The skill adds qualitative improvements (as const derivation, confidence framework, standard mapping) that the current assertions do not measure.",
+    "With-skill runs use ~33% more tokens (14,228 vs 10,694 mean) and take ~80% longer (45s vs 25s mean). The overhead comes from reading the SKILL.md and applying its standards explicitly.",
+    "The token/time overhead is acceptable given the 27-point pass rate improvement, but if the assertions were refined to capture qualitative differences in Evals 0 and 2, the gap would likely widen further."
+  ]
+}

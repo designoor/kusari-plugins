@@ -1,0 +1,67 @@
+{
+  "metadata": {
+    "skill_name": "typescript-standards",
+    "model": "sonnet",
+    "iteration": 2,
+    "timestamp": "2026-04-19T11:30:00Z"
+  },
+  "configs": {
+    "with_skill": {
+      "pass_rates": [0.6, 1.0, 0.667, 1.0],
+      "mean_pass_rate": 0.817,
+      "stddev_pass_rate": 0.189,
+      "min_pass_rate": 0.6,
+      "max_pass_rate": 1.0,
+      "tokens": [13578, 13517, 15395, 14852],
+      "mean_tokens": 14335.5,
+      "durations_seconds": [21.7, 22.9, 48.2, 61.1],
+      "mean_duration_seconds": 38.475
+    },
+    "without_skill": {
+      "pass_rates": [0.0, 0.25, 0.556, 1.0],
+      "mean_pass_rate": 0.452,
+      "stddev_pass_rate": 0.423,
+      "min_pass_rate": 0.0,
+      "max_pass_rate": 1.0,
+      "tokens": [9915, 9879, 12170, 11329],
+      "mean_tokens": 10823.25,
+      "durations_seconds": [7.4, 8.2, 41.2, 26.8],
+      "mean_duration_seconds": 20.9
+    },
+    "delta": {
+      "mean_pass_rate": 0.365,
+      "mean_tokens": 3512.25,
+      "mean_duration_seconds": 17.575
+    }
+  },
+  "per_eval": [
+    {
+      "eval_id": 0,
+      "eval_name": "payment-badge-exhaustive-handling",
+      "with_skill_pass_rate": 0.6,
+      "without_skill_pass_rate": 0.0,
+      "delta": 0.6
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "api-client-boundary-parsing",
+      "with_skill_pass_rate": 1.0,
+      "without_skill_pass_rate": 0.25,
+      "delta": 0.75
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "code-review-violation-detection",
+      "with_skill_pass_rate": 0.667,
+      "without_skill_pass_rate": 0.556,
+      "delta": 0.111
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "refactoring-judgment-calibration",
+      "with_skill_pass_rate": 1.0,
+      "without_skill_pass_rate": 1.0,
+      "delta": 0.0
+    }
+  ]
+}

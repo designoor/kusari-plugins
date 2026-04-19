@@ -1,0 +1,18 @@
+{
+  "eval_id": 2,
+  "eval_name": "code-review-violation-detection",
+  "model": "sonnet",
+  "timestamp": "2026-04-19T11:00:00Z",
+  "prompt": "Can you review this TypeScript file and tell me what to fix?\n\nFile: src/utils/dataProcessor.ts",
+  "assertions": [
+    "Flags every any usage in the file",
+    "Flags the unsafe as cast",
+    "Flags the default export",
+    "Flags boolean positional parameters",
+    "Flags the non-null assertion (value!)",
+    "Flags the parallel type definition drift (role: string vs literal union)",
+    "Uses the confidence framework: findings categorized as high/moderate/low confidence",
+    "Maps findings to specific standard sections from the skill",
+    "Does NOT flag formatting or import order issues"
+  ]
+}

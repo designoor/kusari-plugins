@@ -1,0 +1,64 @@
+{
+  "summary": {
+    "passed": 6,
+    "failed": 3,
+    "total": 9,
+    "pass_rate": 0.667
+  },
+  "expectations": [
+    {
+      "text": "Flags every any usage in the file",
+      "passed": true,
+      "evidence": "Finding #2 identifies all four: data (line 12), result (line 13), getConfig() return (line 35), user in formatUser (line 39)."
+    },
+    {
+      "text": "Flags the unsafe as cast",
+      "passed": true,
+      "evidence": "Finding #3 calls out data as UserData on line 16 as an unsafe cast without a type guard."
+    },
+    {
+      "text": "Flags the default export",
+      "passed": true,
+      "evidence": "Finding #1 explicitly flags the default export on line 12."
+    },
+    {
+      "text": "Flags boolean positional parameters",
+      "passed": true,
+      "evidence": "Finding #6 flags shouldValidate: boolean, includeMetadata: boolean and recommends a named options object."
+    },
+    {
+      "text": "Flags the non-null assertion (value!)",
+      "passed": true,
+      "evidence": "Finding #4 calls out config.settings!.timeout on line 23 with correct reasoning about the crash path."
+    },
+    {
+      "text": "Flags the parallel type definition drift (role: string vs literal union)",
+      "passed": false,
+      "evidence": "Finding #5 flags the unsafe cast on line 40 but does not identify the structural drift between UserData.role: string in the interface and the literal union used in the cast."
+    },
+    {
+      "text": "Uses the confidence framework: findings categorized as high/moderate/low confidence",
+      "passed": false,
+      "evidence": "The review is a flat numbered list with no high/moderate/low confidence categorization anywhere."
+    },
+    {
+      "text": "Maps findings to specific standard sections from the skill",
+      "passed": false,
+      "evidence": "No standard section names or references appear in the review. Findings float without traceability."
+    },
+    {
+      "text": "Does NOT flag formatting or import order issues",
+      "passed": true,
+      "evidence": "All eight findings address substantive type safety or structural issues only."
+    }
+  ],
+  "assertion_critique": [
+    "Assertion 6: The review catches the symptom (unsafe cast) but misses the root structural issue -- the interface definition itself is wrong.",
+    "Assertion 7: The confidence framework is a core output structure of the skill. The review ignores it entirely.",
+    "Assertion 8: Without section mapping, the output is not auditable against the standard."
+  ],
+  "timing": {
+    "total_tokens": 15395,
+    "total_duration_seconds": 48.2
+  }
+}

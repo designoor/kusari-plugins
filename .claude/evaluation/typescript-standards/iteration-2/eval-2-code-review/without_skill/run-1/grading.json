@@ -1,0 +1,63 @@
+{
+  "summary": {
+    "passed": 5,
+    "failed": 4,
+    "total": 9,
+    "pass_rate": 0.556
+  },
+  "expectations": [
+    {
+      "text": "Flags every any usage in the file",
+      "passed": true,
+      "evidence": "Item 1 lists all four any usages by line: data: any (line 12), result: any (line 13), getConfig(): any (line 35), user: any (line 39). Complete coverage."
+    },
+    {
+      "text": "Flags the unsafe as cast",
+      "passed": true,
+      "evidence": "Item 2 flags data as UserData on line 16. Item 5 flags user.role as admin | member | viewer on line 40. Both as casts are identified."
+    },
+    {
+      "text": "Flags the default export",
+      "passed": true,
+      "evidence": "Item 6 explicitly flags processData as a default export and recommends switching to named exports throughout."
+    },
+    {
+      "text": "Flags boolean positional parameters",
+      "passed": false,
+      "evidence": "The review never mentions the two boolean positional parameters (shouldValidate: boolean, includeMetadata: boolean) in the processData signature."
+    },
+    {
+      "text": "Flags the non-null assertion (value!)",
+      "passed": true,
+      "evidence": "Item 3 flags config.settings!.timeout on line 23 and recommends replacing with optional chaining and a fallback."
+    },
+    {
+      "text": "Flags the parallel type definition drift (role: string vs literal union)",
+      "passed": false,
+      "evidence": "Item 5 flags the unsafe cast on line 40 but frames it only as a runtime safety issue. The review never identifies the drift between role: string in the UserData interface (line 9) and the literal union on line 40."
+    },
+    {
+      "text": "Uses the confidence framework: findings categorized as high/moderate/low confidence",
+      "passed": false,
+      "evidence": "The review uses a flat numbered list with a priority order note at the end. No high/moderate/low confidence labels appear anywhere."
+    },
+    {
+      "text": "Maps findings to specific standard sections from the skill",
+      "passed": false,
+      "evidence": "No references to standard section names, identifiers, or numbered rules appear. Findings are described in plain language without grounding in any named standard."
+    },
+    {
+      "text": "Does NOT flag formatting or import order issues",
+      "passed": true,
+      "evidence": "The review contains no mention of formatting, style, or import order. All items address type safety, export conventions, or runtime safety concerns."
+    }
+  ],
+  "assertion_critique": [
+    "Confidence framework and standard section mapping require skill-provided vocabulary -- expected to fail without skill",
+    "Boolean positional parameters and type definition drift require pattern-specific knowledge the skill supplies"
+  ],
+  "timing": {
+    "total_tokens": 12170,
+    "total_duration_seconds": 41.2
+  }
+}

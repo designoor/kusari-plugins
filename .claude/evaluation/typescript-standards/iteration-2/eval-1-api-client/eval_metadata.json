@@ -1,0 +1,13 @@
+{
+  "eval_id": 1,
+  "eval_name": "api-client-boundary-parsing",
+  "model": "sonnet",
+  "timestamp": "2026-04-19T11:00:00Z",
+  "prompt": "We're fetching user profiles from /api/users/:id and the response has name, email, role (admin/member/viewer), and an optional phoneNumber. Can you write the API client function in src/services/userService.ts? We're using axios.",
+  "assertions": [
+    "Uses Zod or equivalent schema for response parsing",
+    "Type derived from schema (z.infer or equivalent), not a hand-written interface",
+    "Parsing happens at the API boundary function, not deferred to consumers",
+    "Uses named export, not default export"
+  ]
+}

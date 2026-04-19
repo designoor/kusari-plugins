@@ -1,0 +1,12 @@
+{
+  "eval_id": 3,
+  "eval_name": "refactoring-judgment-calibration",
+  "model": "sonnet",
+  "timestamp": "2026-04-19T11:00:00Z",
+  "prompt": "I have this React component in src/components/Dashboard.tsx that fetches data, transforms it, and renders a chart all in one 180-line function. The data fetching uses useEffect with a manual fetch call. Should I break this up? If so, how?",
+  "assertions": [
+    "Recommends extraction of data fetching from rendering concern",
+    "Does NOT blindly recommend extracting everything -- applies judgment about when extraction adds unnecessary layers",
+    "Any new files or functions use named exports"
+  ]
+}

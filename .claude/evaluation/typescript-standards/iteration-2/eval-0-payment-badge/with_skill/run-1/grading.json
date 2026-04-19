@@ -1,0 +1,43 @@
+{
+  "summary": {
+    "passed": 3,
+    "failed": 2,
+    "total": 5,
+    "pass_rate": 0.6
+  },
+  "expectations": [
+    {
+      "text": "Status values defined with as const and type derived via typeof, not a hand-written union",
+      "passed": false,
+      "evidence": "PaymentStatus is declared as a hand-written union type: export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded'. No as const object is used and no typeof derivation is present."
+    },
+    {
+      "text": "Return type is a specific union (e.g. BadgeColor), not string",
+      "passed": false,
+      "evidence": "getPaymentBadgeColor is typed as returning string. No narrower union type (e.g. BadgeColor) is defined or used as the return type."
+    },
+    {
+      "text": "No runtime default fallback value -- missing cases are compile errors only",
+      "passed": true,
+      "evidence": "BADGE_COLORS is a Record<PaymentStatus, string> with all four statuses covered. The function returns BADGE_COLORS[status] directly with no fallback. Missing keys are caught at compile time by the Record constraint."
+    },
+    {
+      "text": "Uses Record<Status, Color> or exhaustive switch with never check",
+      "passed": true,
+      "evidence": "BADGE_COLORS is typed as Record<PaymentStatus, string>, which forces all members of PaymentStatus to be present at compile time."
+    },
+    {
+      "text": "Uses named export, not default export",
+      "passed": true,
+      "evidence": "Both getPaymentBadgeColor and PaymentBadge use named exports (export function). No default export is present."
+    }
+  ],
+  "assertion_critique": [
+    "Assertion 1 failure: The output uses a literal union type directly instead of deriving it from an as const object via typeof.",
+    "Assertion 2 failure: The color return type is widened to string rather than a constrained union like 'yellow' | 'green' | 'red' | 'blue'."
+  ],
+  "timing": {
+    "total_tokens": 13578,
+    "total_duration_seconds": 21.7
+  }
+}

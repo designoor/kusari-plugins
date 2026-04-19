@@ -1,0 +1,29 @@
+{
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "pass_rate": 1.0
+  },
+  "expectations": [
+    {
+      "text": "Recommends extraction of data fetching from rendering concern",
+      "passed": true,
+      "evidence": "Section 1: 'Extract data fetching into a custom hook' with full useDashboardData implementation. Section 2: 'Extract transformation into a pure function.' Section 3: 'Slim down the component' to orchestration only."
+    },
+    {
+      "text": "Does NOT blindly recommend extracting everything -- applies judgment about when extraction adds unnecessary layers",
+      "passed": true,
+      "evidence": "Explicit 'What NOT to do' section: 'Do not extract further just because you can. If Chart is only used here... keep it as a single component.' Also: 'Do not create an abstraction layer over fetch unless there are multiple data-fetching hooks.' Directly applies the skill's 'when not to extract' criteria."
+    },
+    {
+      "text": "Any new files or functions use named exports",
+      "passed": true,
+      "evidence": "All code examples use named exports: 'export function useDashboardData', 'export function transformDashboardData', 'export function Dashboard'. No default exports."
+    }
+  ],
+  "timing": {
+    "total_tokens": 14678,
+    "total_duration_seconds": 55.8
+  }
+}

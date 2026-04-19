@@ -1,0 +1,37 @@
+{
+  "summary": {
+    "passed": 1,
+    "failed": 3,
+    "total": 4,
+    "pass_rate": 0.25
+  },
+  "expectations": [
+    {
+      "text": "Uses Zod or equivalent schema for response parsing",
+      "passed": false,
+      "evidence": "No schema validation library is imported or used. The code relies on an axios generic type parameter, which is compile-time only."
+    },
+    {
+      "text": "Type derived from schema (z.infer or equivalent), not a hand-written interface",
+      "passed": false,
+      "evidence": "UserProfile is a hand-written interface at lines 5-10. No schema inference is used."
+    },
+    {
+      "text": "Parsing happens at the API boundary function, not deferred to consumers",
+      "passed": false,
+      "evidence": "No runtime parsing occurs. response.data is returned with only a TypeScript generic cast, not a .parse() or .safeParse() call."
+    },
+    {
+      "text": "Uses named export, not default export",
+      "passed": true,
+      "evidence": "Line 12 uses export async function getUserProfile, which is a named export."
+    }
+  ],
+  "assertion_critique": [
+    "Assertion 4 (named export) passes without the skill -- non-discriminating for this eval"
+  ],
+  "timing": {
+    "total_tokens": 9879,
+    "total_duration_seconds": 8.2
+  }
+}

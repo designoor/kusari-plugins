@@ -1,0 +1,42 @@
+{
+  "summary": {
+    "passed": 0,
+    "failed": 5,
+    "total": 5,
+    "pass_rate": 0.0
+  },
+  "expectations": [
+    {
+      "text": "Status values defined with as const and type derived via typeof, not a hand-written union",
+      "passed": false,
+      "evidence": "Uses a hand-written union type: type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded'. No as const object or typeof derivation present."
+    },
+    {
+      "text": "Return type is a specific union (e.g. BadgeColor), not string",
+      "passed": false,
+      "evidence": "Function signature is function getPaymentBadgeColor(status: PaymentStatus): string. Return type is string, not a named union type."
+    },
+    {
+      "text": "No runtime default fallback value -- missing cases are compile errors only",
+      "passed": false,
+      "evidence": "Switch statement includes default: return 'gray' which is a runtime fallback. Missing cases would silently return gray rather than producing a compile error."
+    },
+    {
+      "text": "Uses Record<Status, Color> or exhaustive switch with never check",
+      "passed": false,
+      "evidence": "Uses a switch statement but includes a default branch with a fallback return. No never check is present."
+    },
+    {
+      "text": "Uses named export, not default export",
+      "passed": false,
+      "evidence": "Neither export function nor export default appears. The function and type are not exported at all."
+    }
+  ],
+  "assertion_critique": [
+    "All 5 assertions failed without the skill -- strong discriminating power for this eval"
+  ],
+  "timing": {
+    "total_tokens": 9915,
+    "total_duration_seconds": 7.4
+  }
+}

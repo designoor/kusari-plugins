@@ -1,0 +1,15 @@
+{
+  "eval_id": 2,
+  "eval_name": "code-review-violation-detection",
+  "model": "claude-opus-4-6",
+  "timestamp": "2026-04-19T10:14:01Z",
+  "prompt": "Can you review this TypeScript file and tell me what to fix?\n\nFile: src/utils/dataProcessor.ts",
+  "assertions": [
+    "Flags every any usage in the file",
+    "Flags the unsafe as cast",
+    "Flags the default export",
+    "Flags boolean positional parameters",
+    "Flags the non-null assertion (value!)",
+    "Does NOT flag formatting or import order issues"
+  ]
+}

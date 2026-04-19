@@ -1,0 +1,44 @@
+{
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "expectations": [
+    {
+      "text": "Flags every any usage in the file",
+      "passed": true,
+      "evidence": "Flags 5 instances: data param (issue 2), result variable (issue 3), getConfig return (issue 4), formatUser param (issue 5), and inferred any return (issue 12). All any locations in the file are covered."
+    },
+    {
+      "text": "Flags the unsafe as cast",
+      "passed": true,
+      "evidence": "Issue 6: 'data as UserData' flagged as casting without runtime check. Issue 7: 'user.role as union' flagged as narrowing any without verification."
+    },
+    {
+      "text": "Flags the default export",
+      "passed": true,
+      "evidence": "Issue 1 (first item): 'Default exports allow silent renames at import sites, breaking symbol search and rename refactors.'"
+    },
+    {
+      "text": "Flags boolean positional parameters",
+      "passed": true,
+      "evidence": "Issue 10: 'Call sites will read as processData(userData, true, false) -- opaque without jumping to the signature.' Recommends options object."
+    },
+    {
+      "text": "Flags the non-null assertion (value!)",
+      "passed": true,
+      "evidence": "Issue 8: 'config.settings!.timeout -- getConfig parses {} as fallback, settings will be undefined. The ! assertion suppresses a real null risk.'"
+    },
+    {
+      "text": "Does NOT flag formatting or import order issues",
+      "passed": true,
+      "evidence": "No formatting, whitespace, or import ordering complaints anywhere in the review. Consistent with the skill's exclusion: 'if the compiler and linter pass, do not flag.'"
+    }
+  ],
+  "timing": {
+    "total_tokens": 15427,
+    "total_duration_seconds": 64.7
+  }
+}

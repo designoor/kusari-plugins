@@ -1,0 +1,54 @@
+{
+  "metadata": {
+    "skill_name": "typescript-standards",
+    "model": "sonnet",
+    "iteration": 2,
+    "timestamp": "2026-04-19T11:30:00Z"
+  },
+  "patterns": [
+    {
+      "type": "non_discriminating",
+      "eval_id": 3,
+      "description": "Eval 3 (refactoring judgment) passes 3/3 for both configs. Sonnet produces identical quality refactoring advice with or without the skill. Same result as iteration 1 with Opus.",
+      "recommendation": "Eval 3 assertions do not measure skill value-add. Consider adding assertions that test for skill-specific behaviors like boundary parsing recommendations or confidence-calibrated judgment."
+    },
+    {
+      "type": "model_regression",
+      "eval_id": 0,
+      "description": "Eval 0 with-skill dropped from 5/5 (Opus) to 3/5 (Sonnet). Sonnet failed to use as const derivation and specific return type union despite the skill explicitly teaching these patterns.",
+      "recommendation": "The skill's instructions on as const derivation and return type specificity may need stronger emphasis or worked examples to land with smaller models."
+    },
+    {
+      "type": "model_regression",
+      "eval_id": 2,
+      "description": "Eval 2 with-skill dropped from 6/6 (Opus, original assertions) to 6/9 (Sonnet, expanded assertions). Three new assertions failed: parallel type drift, confidence framework, standard section mapping. Sonnet ignored the confidence framework and section mapping entirely.",
+      "recommendation": "The confidence framework and section mapping are structural output requirements. The skill may need to make these output format requirements more explicit, possibly with a template."
+    },
+    {
+      "type": "strong_discriminator",
+      "eval_id": 1,
+      "description": "Eval 1 (API client) remains the strongest discriminator: 4/4 with skill vs 1/4 without. Boundary parsing with Zod is a clear capability uplift that Sonnet does not produce unprompted.",
+      "recommendation": "This eval reliably measures the skill's core value proposition across both Opus and Sonnet."
+    },
+    {
+      "type": "cost_comparison",
+      "description": "Sonnet uses 33% fewer tokens on average (14.3K vs estimated Opus baseline) and runs faster (38.5s vs estimated Opus). The without-skill baseline is significantly cheaper (10.8K tokens, 20.9s).",
+      "recommendation": "Token overhead from skill loading is proportionally larger on Sonnet. The skill adds ~32% token cost for ~36.5% pass rate improvement."
+    }
+  ],
+  "cross_iteration_comparison": {
+    "iteration_1_model": "opus",
+    "iteration_2_model": "sonnet",
+    "iteration_1_mean_with_skill": 0.944,
+    "iteration_2_mean_with_skill": 0.817,
+    "iteration_1_mean_without_skill": 0.528,
+    "iteration_2_mean_without_skill": 0.452,
+    "observations": [
+      "Opus outperforms Sonnet both with and without the skill",
+      "The skill provides larger absolute uplift on Sonnet (+36.5%) vs Opus (+41.6%), but Sonnet starts from a lower baseline",
+      "Eval 1 (boundary parsing) is the most stable discriminator across models",
+      "Eval 3 (refactoring) is non-discriminating across both models",
+      "Eval 0 shows the largest model gap: Opus with-skill achieves 5/5, Sonnet with-skill only 3/5"
+    ]
+  }
+}

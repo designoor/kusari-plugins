@@ -1,0 +1,29 @@
+{
+  "summary": {
+    "passed": 2,
+    "failed": 1,
+    "total": 3,
+    "pass_rate": 0.667
+  },
+  "expectations": [
+    {
+      "text": "Recommends extraction of data fetching from rendering concern",
+      "passed": true,
+      "evidence": "Section 1: 'Extract data fetching into a custom hook' with useDashboardData implementation. Section 2: 'Extract data transformation into a pure function.' Section 3: 'Keep the component as a thin composition layer.'"
+    },
+    {
+      "text": "Does NOT blindly recommend extracting everything -- applies judgment about when extraction adds unnecessary layers",
+      "passed": true,
+      "evidence": "'What Not To Do' section: 'Do not create a generic useFetch hook unless you have three or more components.' 'Do not split purely for line count. The split is justified here because there are three distinct responsibilities.'"
+    },
+    {
+      "text": "Any new files or functions use named exports",
+      "passed": false,
+      "evidence": "Code examples show plain function declarations without export keywords: 'function useDashboardData(params)', 'function transformDashboardData(raw)', 'function Dashboard({ params })'. No exports demonstrated. The with-skill version explicitly uses 'export function' on all examples."
+    }
+  ],
+  "timing": {
+    "total_tokens": 10909,
+    "total_duration_seconds": 30.7
+  }
+}

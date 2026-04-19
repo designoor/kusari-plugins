@@ -1,0 +1,35 @@
+{
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "expectations": [
+    {
+      "text": "Uses Zod or equivalent schema for response parsing",
+      "passed": true,
+      "evidence": "UserProfileSchema = z.object({...}) defined and UserProfileSchema.parse(response.data) called on line 18."
+    },
+    {
+      "text": "Type derived from schema (z.infer or equivalent), not a hand-written interface",
+      "passed": true,
+      "evidence": "Line 14: export type UserProfile = z.infer<typeof UserProfileSchema>. No hand-written interface."
+    },
+    {
+      "text": "Parsing happens at the API boundary function, not deferred to consumers",
+      "passed": true,
+      "evidence": "Parse occurs inside fetchUserProfile before returning; callers receive validated data."
+    },
+    {
+      "text": "Uses named export, not default export",
+      "passed": true,
+      "evidence": "Both UserProfile and fetchUserProfile use named exports; no default export present."
+    }
+  ],
+  "assertion_critique": [],
+  "timing": {
+    "total_tokens": 13517,
+    "total_duration_seconds": 22.9
+  }
+}
