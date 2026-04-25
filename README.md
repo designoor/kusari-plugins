@@ -12,7 +12,7 @@ Claude Code plugin collection.
 
 Register the marketplace:
 ```
-/plugin marketplace add designoor/kusari-plugins
+/plugin marketplace add kusarixyz/kusari-plugins
 ```
 
 Install a plugin:
